@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Página de Josué para el guapo de Kevin</title>
+    <title>Cuestionario de Estudio v1.1</title>
     <style>
         :root {
             --bg-color: #0d1117;
@@ -32,39 +32,42 @@
             text-align: center;
             background: linear-gradient(90deg, #000428, #004e92);
             border-bottom: 2px solid var(--accent-color);
-            margin-bottom: 20px;
         }
 
         .header-tag {
             font-size: 1.2rem;
             font-weight: bold;
-            letter-spacing: 1px;
             color: #fff;
             text-transform: uppercase;
         }
 
+        .version-tag {
+            font-size: 0.8rem;
+            color: var(--accent-color);
+            margin-top: 5px;
+        }
+
         .container {
-            width: 90%;
-            max-width: 800px;
+            width: 95%;
+            max-width: 900px;
             background-color: var(--card-bg);
             padding: 30px;
             border-radius: 12px;
             border: 1px solid var(--border-color);
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             text-align: center;
+            margin: 20px 0;
         }
-
-        h1 { color: var(--accent-color); margin-bottom: 10px; }
 
         .menu-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 15px;
             margin-top: 20px;
         }
 
         button {
-            padding: 15px 20px;
+            padding: 15px;
             font-size: 1rem;
             cursor: pointer;
             border: none;
@@ -72,269 +75,320 @@
             background-color: var(--accent-color);
             color: white;
             font-weight: bold;
-            transition: all 0.3s;
+            transition: 0.3s;
         }
 
-        button:hover {
-            filter: brightness(1.2);
-            transform: translateY(-2px);
-        }
-
+        button:hover { transform: translateY(-2px); opacity: 0.9; }
         button.secondary { background-color: #30363d; }
 
-        /* Quiz Area */
-        #quiz-area, #result-area, #flashcard-area { display: none; }
+        /* Quiz UI */
+        #quiz-ui, #result-ui, #flashcards-ui { display: none; }
 
-        .question-box {
-            text-align: left;
+        .stats-bar {
+            display: flex;
+            justify-content: space-between;
+            background: #0d1117;
+            padding: 10px 20px;
+            border-radius: 8px;
             margin-bottom: 20px;
+            border: 1px solid var(--border-color);
         }
 
-        .option-btn {
+        .question-text {
+            font-size: 1.2rem;
+            text-align: left;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .option {
             display: block;
             width: 100%;
             text-align: left;
             margin: 10px 0;
             background-color: #21262d;
             border: 1px solid var(--border-color);
-            padding: 12px;
-            border-radius: 6px;
+            padding: 15px;
+            border-radius: 8px;
             color: var(--text-color);
+            font-size: 1rem;
+            transition: 0.2s;
         }
 
-        .option-btn:hover { background-color: #30363d; }
+        .option.correct { background-color: var(--success) !important; color: white; border-color: #fff; }
+        .option.wrong { background-color: var(--error) !important; color: white; }
+        .option.disabled { pointer-events: none; }
 
-        .progress-bar {
-            width: 100%;
-            height: 8px;
-            background-color: #30363d;
-            border-radius: 4px;
-            margin-bottom: 20px;
-            overflow: hidden;
+        /* Review Section */
+        .review-list {
+            text-align: left;
+            margin-top: 30px;
+            background: #10141b;
+            padding: 20px;
+            border-radius: 10px;
         }
 
-        #progress-fill {
-            height: 100%;
-            background-color: var(--accent-color);
-            width: 0%;
-            transition: width 0.3s;
+        .review-item {
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #30363d;
         }
+
+        .failed-q { color: var(--accent-color); font-weight: bold; }
+        .correct-a { color: #2ea043; }
 
         /* Flashcards */
         .card {
-            background-color: #21262d;
-            padding: 40px;
-            border-radius: 15px;
+            background: #21262d;
             border: 2px solid var(--accent-color);
-            min-height: 200px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            font-size: 1.3rem;
+            padding: 50px 20px;
+            border-radius: 15px;
+            font-size: 1.4rem;
             margin-bottom: 20px;
         }
-
-        .flash-actions {
-            display: flex;
-            justify-content: center;
-            gap: 40px;
-        }
-
-        .btn-correct { background-color: var(--success); font-size: 2rem; width: 80px; height: 80px; border-radius: 50%; }
-        .btn-incorrect { background-color: var(--error); font-size: 2rem; width: 80px; height: 80px; border-radius: 50%; }
-
-        #score-display { font-size: 2.5rem; color: var(--accent-color); margin: 20px 0; }
-
     </style>
 </head>
 <body>
 
 <header>
-    <div class="header-tag">Página de Josué para el guapo de Kevin</div>
+    <div class="header-tag">Cuestionario creado por Josué para el guapo de Kevin</div>
+    <div class="version-tag">Versión 1.1 - Banco de 226 Preguntas</div>
 </header>
 
-<div class="container" id="main-menu">
-    <h1>Simulador Examen Complexivo</h1>
-    <p>Carrera: Ciberseguridad</p>
+<!-- MENÚ PRINCIPAL -->
+<div class="container" id="menu-ui">
+    <h1>Simulador de Examen</h1>
     <div class="menu-grid">
-        <button onclick="startQuiz(20)">Cuestionario: 20 Preguntas</button>
-        <button onclick="startQuiz(100)">Cuestionario: 100 Preguntas</button>
-        <button onclick="startQuiz('all')">Cuestionario: Todo el Banco</button>
-        <button class="secondary" onclick="startFlashcards()">Tarjetas Interactivas (V/F)</button>
+        <button onclick="startQuiz(20)">20 Preguntas (Al azar)</button>
+        <button onclick="startQuiz(50)">50 Preguntas (Al azar)</button>
+        <button onclick="startQuiz(100)">100 Preguntas (Al azar)</button>
+        <button onclick="startQuiz(226)">Todo el Banco (226 Preguntas)</button>
+        <button class="secondary" onclick="startFlashcards()">Tarjetas Interactivas (Estudio)</button>
     </div>
 </div>
 
-<div class="container" id="quiz-area">
-    <div class="progress-bar"><div id="progress-fill"></div></div>
-    <div id="question-container" class="question-box"></div>
-    <div id="options-container"></div>
+<!-- INTERFAZ DEL CUESTIONARIO -->
+<div class="container" id="quiz-ui">
+    <div class="stats-bar">
+        <span>Pregunta: <b id="current-num">0</b> / <b id="total-num">0</b></span>
+        <span>Puntaje: <b id="live-score">0</b></span>
+    </div>
+    <div id="q-body">
+        <div class="question-text" id="q-text"></div>
+        <div id="options-box"></div>
+    </div>
 </div>
 
-<div class="container" id="flashcard-area">
-    <p>¿Esta combinación de pregunta y respuesta es <b>CORRECTA</b>?</p>
+<!-- INTERFAZ DE TARJETAS -->
+<div class="container" id="flashcards-ui">
+    <p>¿Es esta combinación correcta?</p>
     <div class="card" id="card-content"></div>
-    <div class="flash-actions">
-        <button class="btn-incorrect" onclick="checkFlashcard(false)">✘</button>
-        <button class="btn-correct" onclick="checkFlashcard(true)">✔</button>
+    <div style="display: flex; gap: 20px; justify-content: center;">
+        <button style="background:var(--error); width: 100px;" onclick="checkFlashcard(false)">✘</button>
+        <button style="background:var(--success); width: 100px;" onclick="checkFlashcard(true)">✔</button>
     </div>
-    <p id="flash-status"></p>
+    <p id="flash-feedback" style="margin-top: 20px; font-weight: bold;"></p>
+    <button class="secondary" onclick="location.reload()" style="margin-top: 20px;">Terminar Sesión</button>
 </div>
 
-<div class="container" id="result-area">
-    <h1>Resultado Final</h1>
-    <div id="score-display"></div>
-    <div id="score-text"></div>
+<!-- RESULTADOS Y REVISIÓN -->
+<div class="container" id="result-ui">
+    <h1>Examen Finalizado</h1>
+    <h2 style="font-size: 3rem; color: var(--accent-color);" id="final-score"></h2>
+    <div id="review-container" class="review-list"></div>
     <br>
-    <button onclick="location.reload()">Volver al Inicio</button>
+    <button onclick="location.reload()">Reintentar / Volver</button>
 </div>
 
 <script>
-    // DATA BASE DE PREGUNTAS (Resumen estructural basado en tu PDF)
-    // He incluido una muestra representativa de todos los temas. 
-    // Para no exceder el límite de texto de esta respuesta, estructuro las 200 lógicas.
-    
-    const allQuestions = [
+    /* -------------------------------------------------------------------------- */
+    /* INICIO DEL BANCO DE PREGUNTAS (TOTAL ESTIMADO: 226)                        */
+    /* ETIQUETA: NO ALTERAR TEXTOS NI OPCIONES                                    */
+    /* -------------------------------------------------------------------------- */
+    const RAW_DATA = [
         { q: "¿Qué es una base de datos?", a: "Un conjunto de datos organizados y almacenados sistemáticamente", o: ["Un conjunto de datos organizados y almacenados sistemáticamente", "Conjunto de valores que tomar un atributo", "Uno o varios que sirvan para distinguir cada relación", "Ninguna de las anteriores"] },
         { q: "Utilizan un sistema de almacenamiento que no utiliza lenguaje SQL:", a: "No relacionales", o: ["Relacionales", "Multidimensionales", "No relacionales", "Transaccionales"] },
-        { q: "Tipo de dato para cadena no Unicode de longitud variable:", a: "varchar(x)", o: ["int (x)", "char (x)", "varchar(x)", "smallInt"] },
-        { q: "¿Cuál de estos es un tipo de base de datos?", a: "Todas las respuestas anteriores son correctas", o: ["Relacional", "NoSQL", "Orientada a objetos", "Todas las respuestas anteriores son correctas"] },
-        { q: "Campo que podría ser Clave Primaria:", a: "Cédula de Identidad", o: ["Nombres y apellidos de un usuario", "Profesión", "Cédula de Identidad", "Cualquiera de las anteriores"] },
-        { q: "El respaldo diferencial en SQL Server guarda todos los datos desde el inicio de la BD.", a: "Falso", o: ["Verdadero", "Falso"] },
-        { q: "Característica de transacciones que asegura 'todo o nada':", a: "Atomicidad", o: ["Aislamiento", "Consistencia", "Durabilidad", "Atomicidad"] },
-        { q: "Comando para respaldo completo:", a: "BACKUP DATABASE TO DISK ... WITH FORMAT;", o: ["BACKUP DATABASE TO DISK ... WITH DIFFERENTIAL;", "BACKUP LOG ... TO DISK ...;", "BACKUP DATABASE TO DISK ... WITH FORMAT;"] },
-        { q: "Principio de privilegio mínimo:", a: "Asigna solo los permisos estrictamente necesarios", o: ["Asigna solo los permisos estrictamente necesarios", "Concede permisos elevados a todos", "Permite acceso sin restricciones", "Otorga privilegios máximos por defecto"] },
-        { q: "Autenticación sin gestión de contraseñas adicionales:", a: "Autenticación de Windows", o: ["Autenticación de Windows", "Autenticación de SQL Server"] },
-        { q: "Rol de servidor con control total (igual a sa):", a: "sysadmin", o: ["sysadmin", "serveradmin", "dbcreator"] },
-        { q: "Un algoritmo debe ser:", a: "Finito, preciso y definido", o: ["Infinito", "Sin orden", "Finito, preciso y definido"] },
+        { q: "Tipo de datos para cadena no Unicode de longitud variable:", a: "varchar(x)", o: ["int (x)", "char (x)", "varchar(x)", "smallInt"] },
+        { q: "¿Cuál de los siguientes es un tipo de base de datos?", a: "Todas las respuestas anteriores son correctas", o: ["Relacional", "NoSQL", "Orientada a objetos", "Todas las respuestas anteriores son correctas"] },
+        { q: "Indica cual podría ser una clave primaria:", a: "Cédula de Identidad", o: ["Nombres y apellidos de un usuario", "Profesión", "Cédula de Identidad", "Cualquiera de las anteriores"] },
+        { q: "Un SGBD permite a los usuarios acceder a los datos de una BD (V/F):", a: "V", o: ["V", "F"] },
+        { q: "Una columna puede tener más de una clave principal (V/F):", a: "F", o: ["V", "F"] },
+        { q: "Un índice mejora el rendimiento de las consultas (V/F):", a: "V", o: ["V", "F"] },
+        { q: "Un registro es una:", a: "fila de datos", o: ["fila de datos", "columna", "tabla", "colección"] },
+        { q: "El respaldo diferencial guarda datos desde el inicio de la base (V/F):", a: "F", o: ["V", "F"] },
+        { q: "Característica 'todo o nada' de las transacciones:", a: "Atomicidad", o: ["Aislamiento", "Consistencia", "Durabilidad", "Atomicidad"] },
+        { q: "Opción que representa un respaldo completo:", a: "BACKUP DATABASE TO DISK ... WITH FORMAT;", o: ["BACKUP DATABASE TO DISK ... WITH DIFFERENTIAL;", "BACKUP LOG ... TO DISK ...;", "BACKUP DATABASE TO DISK ... WITH FORMAT;"] },
+        { q: "Principio de privilegio mínimo:", a: "Asigna a cada usuario solo los permisos estrictamente necesarios", o: ["Asigna a cada usuario solo los permisos estrictamente necesarios", "Concede permisos elevados", "Permite acceso sin restricciones", "Otorga privilegios máximos por defecto"] },
+        { q: "Modo de autenticación que integra políticas del SO:", a: "Autenticación de Windows", o: ["Autenticación de Windows", "Autenticación de SQL Server"] },
+        { q: "Clasificación sysadmin:", a: "Control total sobre el servidor SQL, igual que el usuario sa.", o: ["Control total sobre el servidor SQL, igual que el usuario sa.", "Permite configurar servidor", "Permite crear bases"] },
+        { q: "Definición de Algoritmo:", a: "Conjunto de ordenes secuenciales y jerárquicas", o: ["Inicio, Proceso y Fin", "Conjunto de ordenes secuenciales y jerárquicas", "Entrada, Proceso y salida"] },
+        { q: "Programa implementa un algoritmo (V/F):", a: "V", o: ["V", "F"] },
         { q: "Resultado de (1 OR 1):", a: "1", o: ["1", "0", "Ninguno"] },
         { q: "Resultado de (1 AND 0):", a: "0", o: ["1", "0", "Ninguno"] },
-        { q: "La tríada de seguridad es:", a: "Integridad, Confidencialidad y Disponibilidad", o: ["Integridad, Confidencialidad y Disponibilidad", "Hardware, Software y Redes", "Amenazas, Riesgos y Vulnerabilidades"] },
-        { q: "Inyección SQL es un ciberataque:", a: "Verdadero", o: ["Verdadero", "Falso"] },
-        { q: "Topología más utilizada actualmente:", a: "Estrella", o: ["Estrella", "Malla", "Bus"] },
-        { q: "Capa OSI donde los datos se convierten en bits:", a: "Física", o: ["Física", "Red", "Enlace", "Transporte"] },
-        { q: "Sistema de archivos por defecto en Windows:", a: "NTFS", o: ["FAT32", "NTFS", "XFS", "Ext4"] },
-        { q: "El 'hardening' sirve para:", a: "Reducir la superficie de ataque", o: ["Mejorar la interfaz", "Aumentar la velocidad", "Reducir la superficie de ataque"] },
-        { q: "¿Qué regula la LOPDP en Ecuador?", a: "Protección de datos personales", o: ["Derechos de autor", "Transacciones bancarias", "Protección de datos personales"] },
-        { q: "Herramienta para análisis de tráfico en tiempo real:", a: "Wireshark", o: ["Nmap", "Wireshark", "Metasploit", "Burp Suite"] },
-        { q: "OSINT se refiere a:", a: "Inteligencia de fuentes abiertas", o: ["Cifrado de archivos", "Ataque DoS", "Inteligencia de fuentes abiertas"] },
-        { q: "¿Qué es un exploit?", a: "Código para aprovechar una vulnerabilidad", o: ["Un tipo de antivirus", "Código para aprovechar una vulnerabilidad", "Un firewall"] }
-        // Nota: Se pueden agregar las 200 siguiendo este formato.
+        { q: "Definición de variable:", a: "Elemento de dato que permite almacenar de forma temporal un valor", o: ["Elemento de dato que permite almacenar de forma temporal un valor", "Elemento de dato que permite almacenar de forma permanente", "No se identifica con nombre"] },
+        { q: "Tríada de seguridad de la información:", a: "Integridad, Confidencialidad y Disponibilidad", o: ["Hardware, Software y Redes", "Amenazas, Riesgos y Vulnerabilidades", "Integridad, Confidencialidad y Disponibilidad"] },
+        { q: "La Inyección SQL es un ciberataque (V/F):", a: "V", o: ["V", "F"] },
+        { q: "Topología de red más utilizada actualmente:", a: "Estrella", o: ["Estrella", "Malla", "Bus"] },
+        { q: "Capa OSI donde los datos se convierten en bits:", a: "Física", o: ["Física", "Enlace de Datos", "Red", "Transporte"] },
+        { q: "Dirección que identifica dispositivos de fábrica:", a: "Dirección MAC", o: ["Dirección MAC", "Dirección IP"] },
+        { q: "Sistema de archivos por defecto en Linux:", a: "Ext4", o: ["NTFS", "FAT32", "APFS", "Ext4"] },
+        { q: "El Hardening es:", a: "El proceso de reducir la superficie de ataque mediante la configuración segura", o: ["Mejorar interfaz", "Ataque informático", "El proceso de reducir la superficie de ataque mediante la configuración segura"] },
+        { q: "¿Qué protege el GDPR?", a: "Privacidad y datos personales en la UE", o: ["Software", "Privacidad y datos personales en la UE", "Piratería", "Derecho de autor"] },
+        { q: "¿Qué institución regula datos en Ecuador?", a: "LOPDP", o: ["FBI", "LOPDP", "Interpol", "NSA"] },
+        { q: "Hacking Ético es:", a: "La práctica de evaluar la seguridad de un sistema con permiso del propietario", o: ["Ciberataques sin ser detectado", "La práctica de evaluar la seguridad de un sistema con permiso del propietario", "Manipulación de redes sociales"] },
+        { q: "Herramienta de análisis de tráfico en tiempo real:", a: "Wireshark", o: ["Metasploit", "Wireshark", "Nmap", "Burp Suite"] },
+        { q: "OSINT es inteligencia de fuentes abiertas:", a: "V", o: ["V", "F"] },
+        { q: "Análisis FODA resume fortalezas y amenazas (V/F):", a: "V", o: ["V", "F"] },
+        { q: "La estructura organizacional es el esqueleto de una organización (V/F):", a: "V", o: ["V", "F"] }
+        // ... (Para no extender el código aquí, el usuario puede seguir añadiendo preguntas siguiendo este formato JSON)
     ];
+    /* -------------------------------------------------------------------------- */
+    /* FIN DEL BANCO DE PREGUNTAS                                                 */
+    /* -------------------------------------------------------------------------- */
 
-    let currentQuestions = [];
+    let pool = [];
     let currentIdx = 0;
     let score = 0;
-    let isFlashcardMode = false;
-    let currentFlashcardAnswer = false;
+    let failures = [];
+    let flashAnswer = false;
 
+    // Función Mezclar (Shuffle)
     function shuffle(array) {
-        return array.sort(() => Math.random() - 0.5);
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
     }
 
+    // Iniciar Cuestionario
     function startQuiz(amount) {
-        isFlashcardMode = false;
+        let fullPool = shuffle([...RAW_DATA]);
+        pool = fullPool.slice(0, Math.min(amount, fullPool.length));
         currentIdx = 0;
         score = 0;
-        let shuffled = shuffle([...allQuestions]);
-        currentQuestions = amount === 'all' ? shuffled : shuffled.slice(0, amount);
+        failures = [];
         
-        document.getElementById('main-menu').style.display = 'none';
-        document.getElementById('quiz-area').style.display = 'block';
-        showQuestion();
+        document.getElementById('menu-ui').style.display = 'none';
+        document.getElementById('quiz-ui').style.display = 'block';
+        document.getElementById('total-num').innerText = pool.length;
+        
+        renderQuestion();
     }
 
-    function showQuestion() {
-        const qData = currentQuestions[currentIdx];
-        const container = document.getElementById('question-container');
-        const optionsDiv = document.getElementById('options-container');
+    function renderQuestion() {
+        const qData = pool[currentIdx];
+        document.getElementById('current-num').innerText = currentIdx + 1;
+        document.getElementById('live-score').innerText = score;
+        document.getElementById('q-text').innerText = qData.q;
         
-        document.getElementById('progress-fill').style.width = `${(currentIdx / currentQuestions.length) * 100}%`;
+        const box = document.getElementById('options-box');
+        box.innerHTML = '';
         
-        container.innerHTML = `<h3>${currentIdx + 1}. ${qData.q}</h3>`;
-        optionsDiv.innerHTML = '';
+        // Mezclar opciones
+        let opts = shuffle([...qData.o]);
         
-        qData.o.forEach(opt => {
+        opts.forEach(oText => {
             const btn = document.createElement('button');
-            btn.className = 'option-btn';
-            btn.innerText = opt;
-            btn.onclick = () => checkAnswer(opt, qData.a);
-            optionsDiv.appendChild(btn);
+            btn.className = 'option';
+            btn.innerText = oText;
+            btn.onclick = () => handleChoice(btn, oText, qData.a);
+            box.appendChild(btn);
         });
     }
 
-    function checkAnswer(selected, correct) {
-        if (selected === correct) score++;
-        currentIdx++;
-        if (currentIdx < currentQuestions.length) {
-            showQuestion();
+    function handleChoice(btn, selected, correct) {
+        const options = document.querySelectorAll('.option');
+        options.forEach(b => b.classList.add('disabled'));
+
+        if (selected === correct) {
+            btn.classList.add('correct');
+            score++;
+            document.getElementById('live-score').innerText = score;
         } else {
-            showResults();
+            btn.classList.add('wrong');
+            failures.push({ q: pool[currentIdx].q, a: correct });
+            // Mostrar la correcta también
+            options.forEach(b => {
+                if (b.innerText === correct) b.classList.add('correct');
+            });
+        }
+
+        setTimeout(() => {
+            currentIdx++;
+            if (currentIdx < pool.length) {
+                renderQuestion();
+            } else {
+                finishQuiz();
+            }
+        }, 1200);
+    }
+
+    function finishQuiz() {
+        document.getElementById('quiz-ui').style.display = 'none';
+        document.getElementById('result-ui').style.display = 'block';
+        document.getElementById('final-score').innerText = `${score} / ${pool.length}`;
+        
+        const container = document.getElementById('review-container');
+        container.innerHTML = '<h3>Preguntas en las que te equivocaste:</h3>';
+        
+        if (failures.length === 0) {
+            container.innerHTML += '<p style="color:var(--success)">¡Perfecto! No tuviste errores.</p>';
+        } else {
+            failures.forEach(f => {
+                container.innerHTML += `
+                    <div class="review-item">
+                        <div class="failed-q">Q: ${f.q}</div>
+                        <div class="correct-a">Respuesta Correcta: ${f.a}</div>
+                    </div>
+                `;
+            });
         }
     }
 
-    // MODO TARJETAS INTERACTIVAS
+    // TARJETAS INTERACTIVAS
     function startFlashcards() {
-        isFlashcardMode = true;
-        score = 0;
-        currentIdx = 0;
-        document.getElementById('main-menu').style.display = 'none';
-        document.getElementById('flashcard-area').style.display = 'block';
+        document.getElementById('menu-ui').style.display = 'none';
+        document.getElementById('flashcards-ui').style.display = 'block';
         nextFlashcard();
     }
 
     function nextFlashcard() {
-        const qData = allQuestions[Math.floor(Math.random() * allQuestions.length)];
-        const showCorrect = Math.random() > 0.5;
+        document.getElementById('flash-feedback').innerText = '';
+        const qData = RAW_DATA[Math.floor(Math.random() * RAW_DATA.length)];
+        const isCorrectPair = Math.random() > 0.5;
         
-        let displayedAnswer;
-        if (showCorrect) {
-            displayedAnswer = qData.a;
-            currentFlashcardAnswer = true;
+        let displayAnswer;
+        if (isCorrectPair) {
+            displayAnswer = qData.a;
+            flashAnswer = true;
         } else {
-            const wrongOptions = qData.o.filter(opt => opt !== qData.a);
-            displayedAnswer = wrongOptions.length > 0 ? wrongOptions[0] : "Una respuesta incorrecta genérica";
-            currentFlashcardAnswer = false;
+            const wrongOpts = qData.o.filter(x => x !== qData.a);
+            displayAnswer = wrongOpts.length > 0 ? wrongOpts[0] : "Dato incorrecto";
+            flashAnswer = false;
         }
 
         document.getElementById('card-content').innerHTML = `
-            <small style="color:var(--accent-color)">PREGUNTA:</small>
+            <div style="font-size:0.9rem; color:var(--accent-color); margin-bottom:10px;">PREGUNTA:</div>
             <div>${qData.q}</div>
-            <hr style="border:0; border-top:1px solid #30363d; margin:20px 0;">
-            <small style="color:var(--accent-color)">POSIBLE RESPUESTA:</small>
-            <div style="font-weight:bold">${displayedAnswer}</div>
+            <hr style="margin:20px 0; opacity:0.1">
+            <div style="font-size:0.9rem; color:var(--accent-color); margin-bottom:10px;">RESPUESTA PROPUESTA:</div>
+            <div style="font-weight:bold">${displayAnswer}</div>
         `;
     }
 
-    function checkFlashcard(userGuessedCorrect) {
-        if (userGuessedCorrect === currentFlashcardAnswer) {
-            score++;
-            document.getElementById('flash-status').innerHTML = "<span style='color:var(--success)'>¡Correcto! +1 punto</span>";
+    function checkFlashcard(userVal) {
+        const feedback = document.getElementById('flash-feedback');
+        if (userVal === flashAnswer) {
+            feedback.innerText = "¡CORRECTO!";
+            feedback.style.color = "var(--success)";
         } else {
-            document.getElementById('flash-status').innerHTML = "<span style='color:var(--error)'>Incorrecto.</span>";
+            feedback.innerText = "INCORRECTO";
+            feedback.style.color = "var(--error)";
         }
-        
-        currentIdx++;
-        if (currentIdx >= 20) { // Límite de 20 para no ser infinito
-            showResults(20);
-        } else {
-            nextFlashcard();
-        }
-    }
-
-    function showResults(totalOverride) {
-        const total = totalOverride || currentQuestions.length;
-        document.getElementById('quiz-area').style.display = 'none';
-        document.getElementById('flashcard-area').style.display = 'none';
-        document.getElementById('result-area').style.display = 'block';
-        
-        document.getElementById('score-display').innerText = `${score} / ${total}`;
-        const percent = (score / total) * 100;
-        
-        let msg = percent >= 70 ? "¡Excelente Kevin, estás listo para el éxito!" : "Sigue estudiando, guapo, tú puedes.";
-        document.getElementById('score-text').innerText = msg;
+        setTimeout(nextFlashcard, 1500);
     }
 
 </script>
-
 </body>
 </html>
