@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulador Kevin v1.7 </title>
+    <title>Simulador Kevin v1.8 </title>
     <style>
         :root { --bg: #0b0e14; --card: #151921; --text: #d1d5db; --blue: #3b82f6; --green: #16a34a; --red: #dc2626; --border: #2d3748; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; flex-direction: column; align-items: center; }
@@ -27,7 +27,7 @@
 
 <header>
     <div style="font-size: 1.4rem; font-weight: bold; color: #fff;">CUESTIONARIO CREADO POR JOSUÉ PARA EL GUAPO DE KEVIN</div>
-    <div style="color: var(--blue); margin-top: 8px;">VERSIÓN 1.7 - INTERFAZ CUESTIONARIO PARA EL PRECIOSO</div>
+    <div style="color: var(--blue); margin-top: 8px;">VERSIÓN 1.8 - INTERFAZ CUESTIONARIO PARA EL PRECIOSO</div>
 </header>
 
 <div class="container" id="menu-sec">
@@ -1556,8 +1556,24 @@ function nextFlash() {
 }
 
 function evalFlash(val) {
-    if(val === flashAns) soundOk.play(); else soundNo.play();
-    nextFlash();
+    const feedback = document.getElementById('flash-feedback');
+    
+    // 1. Validar si el usuario acertó
+    if (val === flashAns) {
+        feedback.innerText = "¡CORRECTO! ✅";
+        feedback.style.color = "var(--green)";
+        soundOk.play(); // Sonará Swain
+    } else {
+        feedback.innerText = "INCORRECTO ❌";
+        feedback.style.color = "var(--red)";
+        soundNo.play(); // Sonará Dr. Mundo
+    }
+
+    // 2. Bloquear clics momentáneos para que no salte 100 tarjetas a la vez
+    // Esperar 1.5 segundos antes de mostrar la siguiente tarjeta
+    setTimeout(() => {
+        nextFlash();
+    }, 1500); 
 }
 </script>
 </body>
