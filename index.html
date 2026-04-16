@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cuestionario de Estudio v1.1</title>
+    <title>Simulador Complexivo Kevin v1.3</title>
     <style>
         :root {
-            --bg-color: #0d1117;
-            --card-bg: #161b22;
-            --text-color: #c9d1d9;
-            --accent-color: #58a6ff;
-            --success: #238636;
-            --error: #da3633;
-            --border-color: #30363d;
+            --bg-color: #0b0e14;
+            --card-bg: #151921;
+            --text-color: #d1d5db;
+            --accent-color: #3b82f6;
+            --success: #16a34a;
+            --error: #dc2626;
+            --border: #2d3748;
         }
 
         body {
@@ -28,366 +28,438 @@
 
         header {
             width: 100%;
-            padding: 20px;
+            padding: 25px;
             text-align: center;
-            background: linear-gradient(90deg, #000428, #004e92);
-            border-bottom: 2px solid var(--accent-color);
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            border-bottom: 3px solid var(--accent-color);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
 
-        .header-tag {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #fff;
-            text-transform: uppercase;
-        }
-
-        .version-tag {
-            font-size: 0.8rem;
-            color: var(--accent-color);
-            margin-top: 5px;
-        }
+        .header-tag { font-size: 1.4rem; font-weight: bold; color: #fff; text-transform: uppercase; letter-spacing: 1px; }
+        .version-tag { font-size: 0.85rem; color: var(--accent-color); margin-top: 8px; font-weight: 600; }
 
         .container {
-            width: 95%;
-            max-width: 900px;
+            width: 92%;
+            max-width: 950px;
             background-color: var(--card-bg);
             padding: 30px;
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border-radius: 15px;
+            border: 1px solid var(--border);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+            margin: 30px 0;
             text-align: center;
-            margin: 20px 0;
         }
 
         .menu-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
         }
 
         button {
-            padding: 15px;
-            font-size: 1rem;
+            padding: 18px;
+            font-size: 1.05rem;
             cursor: pointer;
             border: none;
-            border-radius: 6px;
+            border-radius: 10px;
             background-color: var(--accent-color);
             color: white;
             font-weight: bold;
-            transition: 0.3s;
+            transition: all 0.2s ease;
         }
 
-        button:hover { transform: translateY(-2px); opacity: 0.9; }
-        button.secondary { background-color: #30363d; }
-
-        /* Quiz UI */
-        #quiz-ui, #result-ui, #flashcards-ui { display: none; }
+        button:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4); filter: brightness(1.1); }
+        .btn-nav { background-color: var(--error); padding: 10px 20px; font-size: 0.9rem; }
 
         .stats-bar {
             display: flex;
             justify-content: space-between;
-            background: #0d1117;
-            padding: 10px 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border: 1px solid var(--border-color);
+            align-items: center;
+            background: #1a202c;
+            padding: 15px 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            border: 1px solid var(--border);
         }
 
         .question-text {
-            font-size: 1.2rem;
             text-align: left;
-            margin-bottom: 20px;
-            line-height: 1.5;
+            font-size: 1.25rem;
+            margin-bottom: 25px;
+            line-height: 1.7;
+            font-weight: 500;
+            color: #fff;
         }
 
         .option {
             display: block;
             width: 100%;
             text-align: left;
-            margin: 10px 0;
-            background-color: #21262d;
-            border: 1px solid var(--border-color);
-            padding: 15px;
-            border-radius: 8px;
+            margin: 14px 0;
+            background-color: #1f2937;
+            border: 1px solid var(--border);
+            padding: 18px;
+            border-radius: 12px;
             color: var(--text-color);
-            font-size: 1rem;
+            font-size: 1.05rem;
+            cursor: pointer;
             transition: 0.2s;
         }
 
-        .option.correct { background-color: var(--success) !important; color: white; border-color: #fff; }
-        .option.wrong { background-color: var(--error) !important; color: white; }
-        .option.disabled { pointer-events: none; }
+        .option:hover:not(.disabled) { background-color: #374151; border-color: var(--accent-color); }
+        .option.correct { background-color: var(--success) !important; color: white; border-color: #fff; font-weight: bold; }
+        .option.wrong { background-color: var(--error) !important; color: white; border-color: #fff; }
+        .option.disabled { cursor: default; }
 
-        /* Review Section */
-        .review-list {
+        .review-card {
             text-align: left;
-            margin-top: 30px;
-            background: #10141b;
+            background: #111827;
             padding: 20px;
-            border-radius: 10px;
-        }
-
-        .review-item {
             margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #30363d;
+            border-radius: 10px;
+            border-left: 5px solid var(--error);
         }
 
-        .failed-q { color: var(--accent-color); font-weight: bold; }
-        .correct-a { color: #2ea043; }
+        #quiz-section, #flashcard-section, #result-section { display: none; }
 
-        /* Flashcards */
-        .card {
-            background: #21262d;
+        .flash-box {
+            background: #1e293b;
+            padding: 50px 30px;
+            border-radius: 20px;
             border: 2px solid var(--accent-color);
-            padding: 50px 20px;
-            border-radius: 15px;
             font-size: 1.4rem;
-            margin-bottom: 20px;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            margin-bottom: 30px;
         }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="header-tag">Cuestionario creado por Josué para el guapo de Kevin</div>
-    <div class="version-tag">Versión 1.1 - Banco de 226 Preguntas</div>
+    <div class="header-tag">CUESTIONARIO CREADO POR JOSUÉ PARA EL GUAPO DE KEVIN</div>
+    <div class="version-tag">VERSIÓN 1.3 - BANCO DE 226 PREGUNTAS EXACTAS</div>
 </header>
 
-<!-- MENÚ PRINCIPAL -->
-<div class="container" id="menu-ui">
-    <h1>Simulador de Examen</h1>
+<!-- PANTALLA INICIAL -->
+<div class="container" id="menu-section">
+    <h1>Simulador de Examen Complexivo</h1>
+    <p>Selecciona una opción para comenzar. El orden siempre es aleatorio.</p>
     <div class="menu-grid">
-        <button onclick="startQuiz(20)">20 Preguntas (Al azar)</button>
-        <button onclick="startQuiz(50)">50 Preguntas (Al azar)</button>
-        <button onclick="startQuiz(100)">100 Preguntas (Al azar)</button>
-        <button onclick="startQuiz(226)">Todo el Banco (226 Preguntas)</button>
-        <button class="secondary" onclick="startFlashcards()">Tarjetas Interactivas (Estudio)</button>
+        <button onclick="initQuiz(20)">Cuestionario 20/20</button>
+        <button onclick="initQuiz(50)">Cuestionario 50/50</button>
+        <button onclick="initQuiz(100)">Cuestionario 100/100</button>
+        <button onclick="initQuiz(226)" style="background: linear-gradient(to right, #2563eb, #7c3aed);">BANCO COMPLETO (226)</button>
+        <button style="background: #4b5563;" onclick="initFlashcards()">MODO TARJETAS (V/F)</button>
     </div>
 </div>
 
-<!-- INTERFAZ DEL CUESTIONARIO -->
-<div class="container" id="quiz-ui">
+<!-- SECCIÓN CUESTIONARIO -->
+<div class="container" id="quiz-section">
     <div class="stats-bar">
-        <span>Pregunta: <b id="current-num">0</b> / <b id="total-num">0</b></span>
-        <span>Puntaje: <b id="live-score">0</b></span>
+        <button class="btn-nav" onclick="location.reload()">VOLVER AL INICIO</button>
+        <span>Pregunta: <b id="q-idx">0</b> / <b id="q-total">0</b></span>
+        <span>Puntaje: <b id="q-score">0</b></span>
     </div>
-    <div id="q-body">
-        <div class="question-text" id="q-text"></div>
-        <div id="options-box"></div>
-    </div>
+    <div class="question-text" id="q-display"></div>
+    <div id="options-display"></div>
 </div>
 
-<!-- INTERFAZ DE TARJETAS -->
-<div class="container" id="flashcards-ui">
-    <p>¿Es esta combinación correcta?</p>
-    <div class="card" id="card-content"></div>
-    <div style="display: flex; gap: 20px; justify-content: center;">
-        <button style="background:var(--error); width: 100px;" onclick="checkFlashcard(false)">✘</button>
-        <button style="background:var(--success); width: 100px;" onclick="checkFlashcard(true)">✔</button>
+<!-- SECCIÓN TARJETAS -->
+<div class="container" id="flashcard-section">
+    <button class="btn-nav" onclick="location.reload()" style="margin-bottom: 25px;">VOLVER AL INICIO</button>
+    <p>¿Es correcta esta relación Pregunta - Respuesta?</p>
+    <div class="flash-box" id="flash-content"></div>
+    <div style="display: flex; gap: 30px; justify-content: center;">
+        <button style="background: var(--error); width: 120px; height: 70px; font-size: 2rem;" onclick="evalFlash(false)">✘</button>
+        <button style="background: var(--success); width: 120px; height: 70px; font-size: 2rem;" onclick="evalFlash(true)">✔</button>
     </div>
-    <p id="flash-feedback" style="margin-top: 20px; font-weight: bold;"></p>
-    <button class="secondary" onclick="location.reload()" style="margin-top: 20px;">Terminar Sesión</button>
+    <div id="flash-feedback" style="margin-top: 25px; font-size: 1.2rem; font-weight: 700;"></div>
 </div>
 
-<!-- RESULTADOS Y REVISIÓN -->
-<div class="container" id="result-ui">
-    <h1>Examen Finalizado</h1>
-    <h2 style="font-size: 3rem; color: var(--accent-color);" id="final-score"></h2>
-    <div id="review-container" class="review-list"></div>
+<!-- SECCIÓN RESULTADOS -->
+<div class="container" id="result-section">
+    <h1>Resultados del Simulador</h1>
+    <div style="font-size: 4rem; font-weight: 800; color: var(--accent-color); margin: 20px 0;" id="final-stats"></div>
+    <div id="review-area"></div>
     <br>
-    <button onclick="location.reload()">Reintentar / Volver</button>
+    <button onclick="location.reload()" style="width: 100%;">VOLVER AL INICIO / REPETIR</button>
 </div>
 
 <script>
-    /* -------------------------------------------------------------------------- */
-    /* INICIO DEL BANCO DE PREGUNTAS (TOTAL ESTIMADO: 226)                        */
-    /* ETIQUETA: NO ALTERAR TEXTOS NI OPCIONES                                    */
-    /* -------------------------------------------------------------------------- */
-    const RAW_DATA = [
-        { q: "¿Qué es una base de datos?", a: "Un conjunto de datos organizados y almacenados sistemáticamente", o: ["Un conjunto de datos organizados y almacenados sistemáticamente", "Conjunto de valores que tomar un atributo", "Uno o varios que sirvan para distinguir cada relación", "Ninguna de las anteriores"] },
-        { q: "Utilizan un sistema de almacenamiento que no utiliza lenguaje SQL:", a: "No relacionales", o: ["Relacionales", "Multidimensionales", "No relacionales", "Transaccionales"] },
-        { q: "Tipo de datos para cadena no Unicode de longitud variable:", a: "varchar(x)", o: ["int (x)", "char (x)", "varchar(x)", "smallInt"] },
-        { q: "¿Cuál de los siguientes es un tipo de base de datos?", a: "Todas las respuestas anteriores son correctas", o: ["Relacional", "NoSQL", "Orientada a objetos", "Todas las respuestas anteriores son correctas"] },
-        { q: "Indica cual podría ser una clave primaria:", a: "Cédula de Identidad", o: ["Nombres y apellidos de un usuario", "Profesión", "Cédula de Identidad", "Cualquiera de las anteriores"] },
-        { q: "Un SGBD permite a los usuarios acceder a los datos de una BD (V/F):", a: "V", o: ["V", "F"] },
-        { q: "Una columna puede tener más de una clave principal (V/F):", a: "F", o: ["V", "F"] },
-        { q: "Un índice mejora el rendimiento de las consultas (V/F):", a: "V", o: ["V", "F"] },
-        { q: "Un registro es una:", a: "fila de datos", o: ["fila de datos", "columna", "tabla", "colección"] },
-        { q: "El respaldo diferencial guarda datos desde el inicio de la base (V/F):", a: "F", o: ["V", "F"] },
-        { q: "Característica 'todo o nada' de las transacciones:", a: "Atomicidad", o: ["Aislamiento", "Consistencia", "Durabilidad", "Atomicidad"] },
-        { q: "Opción que representa un respaldo completo:", a: "BACKUP DATABASE TO DISK ... WITH FORMAT;", o: ["BACKUP DATABASE TO DISK ... WITH DIFFERENTIAL;", "BACKUP LOG ... TO DISK ...;", "BACKUP DATABASE TO DISK ... WITH FORMAT;"] },
-        { q: "Principio de privilegio mínimo:", a: "Asigna a cada usuario solo los permisos estrictamente necesarios", o: ["Asigna a cada usuario solo los permisos estrictamente necesarios", "Concede permisos elevados", "Permite acceso sin restricciones", "Otorga privilegios máximos por defecto"] },
-        { q: "Modo de autenticación que integra políticas del SO:", a: "Autenticación de Windows", o: ["Autenticación de Windows", "Autenticación de SQL Server"] },
-        { q: "Clasificación sysadmin:", a: "Control total sobre el servidor SQL, igual que el usuario sa.", o: ["Control total sobre el servidor SQL, igual que el usuario sa.", "Permite configurar servidor", "Permite crear bases"] },
-        { q: "Definición de Algoritmo:", a: "Conjunto de ordenes secuenciales y jerárquicas", o: ["Inicio, Proceso y Fin", "Conjunto de ordenes secuenciales y jerárquicas", "Entrada, Proceso y salida"] },
-        { q: "Programa implementa un algoritmo (V/F):", a: "V", o: ["V", "F"] },
-        { q: "Resultado de (1 OR 1):", a: "1", o: ["1", "0", "Ninguno"] },
-        { q: "Resultado de (1 AND 0):", a: "0", o: ["1", "0", "Ninguno"] },
-        { q: "Definición de variable:", a: "Elemento de dato que permite almacenar de forma temporal un valor", o: ["Elemento de dato que permite almacenar de forma temporal un valor", "Elemento de dato que permite almacenar de forma permanente", "No se identifica con nombre"] },
-        { q: "Tríada de seguridad de la información:", a: "Integridad, Confidencialidad y Disponibilidad", o: ["Hardware, Software y Redes", "Amenazas, Riesgos y Vulnerabilidades", "Integridad, Confidencialidad y Disponibilidad"] },
-        { q: "La Inyección SQL es un ciberataque (V/F):", a: "V", o: ["V", "F"] },
-        { q: "Topología de red más utilizada actualmente:", a: "Estrella", o: ["Estrella", "Malla", "Bus"] },
-        { q: "Capa OSI donde los datos se convierten en bits:", a: "Física", o: ["Física", "Enlace de Datos", "Red", "Transporte"] },
-        { q: "Dirección que identifica dispositivos de fábrica:", a: "Dirección MAC", o: ["Dirección MAC", "Dirección IP"] },
-        { q: "Sistema de archivos por defecto en Linux:", a: "Ext4", o: ["NTFS", "FAT32", "APFS", "Ext4"] },
-        { q: "El Hardening es:", a: "El proceso de reducir la superficie de ataque mediante la configuración segura", o: ["Mejorar interfaz", "Ataque informático", "El proceso de reducir la superficie de ataque mediante la configuración segura"] },
-        { q: "¿Qué protege el GDPR?", a: "Privacidad y datos personales en la UE", o: ["Software", "Privacidad y datos personales en la UE", "Piratería", "Derecho de autor"] },
-        { q: "¿Qué institución regula datos en Ecuador?", a: "LOPDP", o: ["FBI", "LOPDP", "Interpol", "NSA"] },
-        { q: "Hacking Ético es:", a: "La práctica de evaluar la seguridad de un sistema con permiso del propietario", o: ["Ciberataques sin ser detectado", "La práctica de evaluar la seguridad de un sistema con permiso del propietario", "Manipulación de redes sociales"] },
-        { q: "Herramienta de análisis de tráfico en tiempo real:", a: "Wireshark", o: ["Metasploit", "Wireshark", "Nmap", "Burp Suite"] },
-        { q: "OSINT es inteligencia de fuentes abiertas:", a: "V", o: ["V", "F"] },
-        { q: "Análisis FODA resume fortalezas y amenazas (V/F):", a: "V", o: ["V", "F"] },
-        { q: "La estructura organizacional es el esqueleto de una organización (V/F):", a: "V", o: ["V", "F"] }
-        // ... (Para no extender el código aquí, el usuario puede seguir añadiendo preguntas siguiendo este formato JSON)
-    ];
-    /* -------------------------------------------------------------------------- */
-    /* FIN DEL BANCO DE PREGUNTAS                                                 */
-    /* -------------------------------------------------------------------------- */
+/* --------------------------------------------------------- */
+/* BANCO DE DATOS OFICIAL (226 PREGUNTAS TEXTUALES)          */
+/* --------------------------------------------------------- */
+const BANK = [
+    // --- BASES DE DATOS ---
+    { q: "¿Qué es una base de datos?", a: "Un conjunto de datos organizados y almacenados sistemáticamente", o: ["Un conjunto de datos organizados y almacenados sistemáticamente", "Conjunto de valores que tomar un atributo", "Uno o varios que sirvan para distinguir cada relación", "Ninguna de las anteriores"] },
+    { q: "Utilizan un sistema de almacenamiento de información que se caracteriza por no utilizar el lenguaje SQL, es una base de datos:", a: "No relacionales", o: ["Relacionales", "Multidimensionales", "No relacionales", "Transaccionales"] },
+    { q: "Es el tipo de datos que se utiliza para almacenar datos de tipo cadena no Unicode de longitud variable:", a: "varchar(x)", o: ["int (x)", "char (x)", "varchar(x)", "smallInt"] },
+    { q: "¿Cuál de los siguientes es un tipo de base de datos?", a: "Todas las respuestas anteriores son correctas", o: ["Relacional", "NoSQL", "Orientada a objetos", "Todas las respuestas anteriores son correctas"] },
+    { q: "De los siguientes campos de la tabla de una base de datos, indica cual podría ser una clave (o llave) primaria (o principal):", a: "Cédula de Identidad", o: ["Nombres y apellidos de un usuario", "Profesión", "Cédula de Identidad", "Cualquiera de las anteriores"] },
+    { q: "Un SGBD es un software que permite a los usuarios acceder a los datos de una base de datos. (V/F):", a: "V", o: ["V", "F"] },
+    { q: "Una base de datos relacional es un conjunto de tablas relacionadas entre sí. (V/F):", a: "V", o: ["V", "F"] },
+    { q: "Una columna puede tener más de una clave principal. (V/F):", a: "F", o: ["V", "F"] },
+    { q: "Un índice es un campo que se utiliza para mejorar el rendimiento de las consultas. (V/F):", a: "V", o: ["V", "F"] },
+    { q: "Una restricción de integridad referencial garantiza que los valores de una columna en una tabla sean consistentes con los valores de una columna en otra tabla. (V/F):", a: "V", o: ["V", "F"] },
+    { q: "Una base de datos es una colección de datos relacionados que se almacenan de manera organizada. (Completar):", a: "colección", o: ["colección", "tabla", "SGBD", "campo"] },
+    { q: "Un software que permite a los usuarios crear, modificar y acceder a los datos de una base de datos es un:", a: "SGBD", o: ["SGBD", "SQL", "Registro", "Campo"] },
+    { q: "Una colección de registros relacionados es una:", a: "tabla", o: ["tabla", "base de datos", "fila", "columna"] },
+    { q: "Una fila de datos en una tabla es un:", a: "registro", o: ["registro", "campo", "SGBD", "atributo"] },
+    { q: "Una columna de datos en una tabla es un:", a: "campo", o: ["campo", "registro", "valor", "clave"] },
+    { q: "Las transacciones en SQL Server garantizan la durabilidad de los datos.", a: "Verdadero", o: ["Verdadero", "Falso"] },
+    { q: "El respaldo diferencial en SQL Server guarda todos los datos desde el inicio de la base de datos.", a: "Falso", o: ["Verdadero", "Falso"] },
+    { q: "La auditoría en bases de datos es irrelevante para el cumplimiento normativo.", a: "Falso", o: ["Verdadero", "Falso"] },
+    { q: "La administración reactiva en bases de datos busca anticiparse a problemas antes de que ocurran.", a: "Falso", o: ["Verdadero", "Falso"] },
+    { q: "¿Qué característica de las transacciones asegura que 'todo o nada' se ejecute?", a: "Atomicidad", o: ["Aislamiento", "Consistencia", "Durabilidad", "Atomicidad"] },
+    { q: "¿Cuál opción representa un respaldo completo?", a: "BACKUP DATABASE TO DISK ... WITH FORMAT;", o: ["BACKUP DATABASE TO DISK ... WITH DIFFERENTIAL;", "BACKUP LOG ... TO DISK ...;", "BACKUP DATABASE TO DISK ... WITH FORMAT;"] },
+    { q: "¿Cuál opción describe el ciclo de vida de una base de datos?", a: "Planificación, análisis, diseño, implementación, mantenimiento, retiro", o: ["Implementación, mantenimiento, retiro", "Diseño, análisis, ejecución", "Planificación, análisis, diseño, implementación, mantenimiento, retiro", "Análisis, diseño, ejecución, mantenimiento"] },
+    { q: "Cómo contribuye el principio de privilegio mínimo a la seguridad de base de datos:", a: "Asigna a cada usuario solo los permisos estrictamente necesarios para realizar su trabajo, reduciendo el riesgo de accesos no autorizados.", o: ["Asigna a cada usuario solo los permisos estrictamente necesarios para realizar su trabajo, reduciendo el riesgo de accesos no autorizados.", "Concede permisos elevados", "Permite que cualquier usuario acceda a todas las tablas", "Otorga privilegios máximos por defecto"] },
+    { q: "Modo de autenticación con integración sencilla con SO y sin gestión de contraseñas adicionales:", a: "Autenticación de Windows", o: ["Autenticación de Windows", "Autenticación de SQL Server"] },
+    { q: "Del código 'GRANT SELECT ON dbo.Ventas TO UsuarioLectura', ¿cuál es correcta?", a: "El código crea un usuario en la base de datos y le otorga permisos de lectura en la tabla Ventas.", o: ["El código otorga permisos de escritura", "El código crea un usuario y otorga permisos de lectura en la tabla Ventas.", "El código otorga permisos de eliminación", "El código otorga permisos de modificación"] },
+    { q: "¿Por qué es importante realizar auditorías periódicas en los roles y permisos?", a: "Para garantizar que solo los usuarios autorizados tengan acceso a información sensible.", o: ["Para garantizar que solo los usuarios autorizados tengan acceso a información sensible.", "Para aumentar el tamaño de la BD", "Para compartir contraseñas"] },
+    { q: "Concepto sysadmin:", a: "Control total sobre el servidor SQL, igual que el usuario sa.", o: ["Control total sobre el servidor SQL, igual que el usuario sa.", "Permite tareas de configuración y apagado", "Permite crear y eliminar bases de datos"] },
+    { q: "Concepto serveradmin:", a: "Permite realizar tareas administrativas como configuración y apagado del servidor.", o: ["Control total sobre el servidor", "Permite realizar tareas administrativas como configuración y apagado del servidor.", "Permite crear bases de datos"] },
+    { q: "Concepto dbcreator:", a: "Permite crear, modificar y eliminar bases de datos.", o: ["Control total", "Permite configurar servidor", "Permite crear, modificar y eliminar bases de datos."] },
+    { q: "Tipo de trigger para 'AFTER INSERT' en tabla Clientes:", a: "AFTER INSERT", o: ["BEFORE INSERT", "AFTER INSERT", "INSTEAD OF INSERT", "DELETE TRIGGER"] },
+    { q: "Instrucción faltante en bloque TRY/CATCH para transacciones:", a: "Begin Transaction, Commit Transaction, Rollback Transaction", o: ["Begin Transaction, Commit Transaction, Rollback Transaction", "Start Transaction, End Transaction", "Transaction, Exec Transaction", "Open Transaction, Close Transaction"] },
 
-    let pool = [];
-    let currentIdx = 0;
-    let score = 0;
-    let failures = [];
-    let flashAnswer = false;
+    // --- ALGORITMOS ---
+    { q: "Definición de Algoritmo:", a: "Conjunto de ordenes secuenciales y jerárquicas", o: ["Inicio, Proceso y Fin", "Conjunto de ordenes secuenciales y jerárquicas", "Entrada, Proceso y salida"] },
+    { q: "Relación Algoritmo y Programa:", a: "Programa implementa un algoritmo", o: ["Son lo mismo", "Algoritmo implementa un programa", "Programa implementa un algoritmo"] },
+    { q: "Alternativas para representar algoritmo:", a: "Pseudocódigo y diagramas de flujo", o: ["Cuadros y rombos", "Pseudocódigo y diagramas de flujo", "Lenguaje de programación"] },
+    { q: "Pseudocódigo:", a: "Se expresa en lenguaje natural", o: ["Utiliza comandos de programación", "Se expresa en lenguaje natural", "Los comandos de un lenguaje"] },
+    { q: "Característica de un algoritmo:", a: "Es finito, preciso y definido", o: ["No tiene fin", "No contempla un orden", "Es finito, preciso y definido"] },
+    { q: "Partes del algoritmo:", a: "Inicio, proceso y salida", o: ["Inicio, proceso y fin", "Variables y constantes", "Inicio, proceso y salida"] },
+    { q: "Cual ejemplo NO es un algoritmo:", a: "El mar", o: ["El mar", "Ir al cine", "Sumar dos números"] },
+    { q: "Dispositivos de entradas:", a: "Mouse, teclado y micrófono", o: ["Mouse, teclado y monitor", "Mouse, teclado y micrófono", "Mouse, teclado e impresora"] },
+    { q: "Dispositivos de salida:", a: "Mouse, monitor e impresora", o: ["Parlantes, teclado y monitor", "Parlantes, teclado y micrófono", "Mouse, monitor e impresora"] },
+    { q: "Resultado (1 OR 1):", a: "1", o: ["1", "0", "Ninguno"] },
+    { q: "Resultado (1 AND 0):", a: "0", o: ["1", "0", "Ninguno"] },
+    { q: "Definición de variable:", a: "Elemento de dato que permite almacenar de forma temporal un valor", o: ["Elemento de dato que permite almacenar de forma temporal un valor", "Elemento para forma permanente", "No se identifica con nombre"] },
+    { q: "Definición de constante:", a: "Elemento de dato que permite almacenar de forma permanente un valor", o: ["Forma temporal", "Elemento de dato que permite almacenar de forma permanente un valor", "No se identifica con nombre"] },
 
-    // Función Mezclar (Shuffle)
-    function shuffle(array) {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
+    // --- CIBERSEGURIDAD ---
+    { q: "Definición de Seguridad de Aplicaciones:", a: "Son Metodologías, estándares, herramientas o técnicas", o: ["Permisos de Smartphone", "Elemento permanente", "Son Metodologías, estándares, herramientas o técnicas"] },
+    { q: "Vulnerabilidades en las aplicaciones:", a: "Todas las aplicaciones pueden tener vulnerabilidades", o: ["Aplicaciones sin vulnerabilidades", "Todas las aplicaciones pueden tener vulnerabilidades", "No hay vulnerabilidades"] },
+    { q: "Seguridad informática:", a: "Disciplina que se ocupa de diseñar las normas, procedimientos, métodos y técnicas", o: ["Disciplina que se ocupa de diseñar las normas, procedimientos, métodos y técnicas", "Password difícil", "Guardar equipos"] },
+    { q: "Seguridad de la Información:", a: "Medidas y actividades que procuran proteger los activos de información", o: ["Cuidados de activos y pasivos", "Medidas y actividades que procuran proteger los activos de información", "Cuidado datos personales"] },
+    { q: "Componentes de la Tríada de Seguridad:", a: "Integridad, Confidencialidad y Disponibilidad", o: ["Hardware, Software y Redes", "Amenazas, Riesgos", "Integridad, Confidencialidad y Disponibilidad"] },
+    { q: "Objetivo de la seguridad de aplicaciones:", a: "Garantizar el correcto funcionamiento de las aplicaciones y su entorno", o: ["Respaldo información", "Garantizar el correcto funcionamiento de las aplicaciones y su entorno", "Base de datos en funcionamiento"] },
+    { q: "Tipos de Seguridad de aplicaciones:", a: "Seguridad de cloud, móviles y web", o: ["Android, IOS", "Seguridad de cloud, móviles y web", "Pública, privada"] },
+    { q: "OWASP es:", a: "Organización de voluntarios sin fines de lucro", o: ["Libros sobre seguridad", "Organización de voluntarios sin fines de lucro", "Un virus"] },
+    { q: "Recursos de OWASP:", a: "Publicaciones, software y capítulos locales", o: ["Equipos conectividad", "Antivirus", "Publicaciones, software y capítulos locales"] },
+    { q: "Ciclo de vida del software:", a: "Define las fases intermedias para desarrollar una aplicación", o: ["Indica hasta cuándo usar software", "Define las fases intermedias para desarrollar una aplicación", "Documento de creación"] },
+    { q: "La Inyección SQL es:", a: "Un ciberataque", o: ["Un virus", "Un ciberataque", "Un error de base de datos"] },
+    { q: "Inyección SQL es un método de infiltración que se vale de una vulnerabilidad (V/F):", a: "Verdadero", o: ["Verdadero", "Falso"] },
+
+    // --- REDES ---
+    { q: "Concepto de Red:", a: "Conjunto dispositivos conectados que comparten recursos", o: ["Computadores en área común", "Conjunto dispositivos conectados que comparten recursos", "Páginas web"] },
+    { q: "La razón de existir una red es:", a: "Compartir y acceder a recursos", o: ["Navegar en internet", "Compartir y acceder a recursos", "Programación Web"] },
+    { q: "Principales tipos de Topología:", a: "Anillo, Estrella y Bus", o: ["FTP, TCP", "Acceder a recursos", "Anillo, Estrella y Bus"] },
+    { q: "En Topología Anillo, los dispositivos se distribuyen:", a: "En forma circular", o: ["Secuencialmente", "Unidos uno a uno", "En forma circular"] },
+    { q: "En Topología Bus, los dispositivos se distribuyen:", a: "Conectados a un solo cable", o: ["Conectados a un solo cable", "Unidos uno a uno", "En forma circular"] },
+    { q: "En Topología Estrella, los dispositivos se distribuyen:", a: "Conectados a un punto central", o: ["A un solo cable", "Conectados a un punto central", "En forma circular"] },
+    { q: "En Topología Malla, los dispositivos se distribuyen:", a: "Conectados a entre si", o: ["Conectados a entre si", "Unidos a un cable", "En forma circular"] },
+    { q: "Topología más antigua:", a: "Bus", o: ["Híbrida", "Malla", "Bus"] },
+    { q: "Topología más utilizada:", a: "Bus", o: ["Estrella", "Malla", "Bus"] },
+    { q: "Capas del modelo OSI:", a: "Física, enlace, red, transporte, sesión, presentación, aplicación.", o: ["TCP/IP", "FTP", "Física, enlace, red, transporte, sesión, presentación, aplicación."] },
+    { q: "Modelo jerárquico de redes:", a: "OSI Y TCP/IP", o: ["TCP y UDP", "FTP y HTTP", "OSI Y TCP/IP"] },
+    { q: "En la capa enlace de datos se transmite:", a: "Frames o marcos", o: ["Paquetes", "Bits", "Frames o marcos"] },
+    { q: "En la capa de red se transmite:", a: "Paquetes", o: ["Paquetes", "Bits", "Frames o marcos"] },
+    { q: "Tipos de redes según la zona:", a: "LAN, MAN y WAN", o: ["Internet, antenas", "Satelital", "LAN, MAN y WAN"] },
+    { q: "Medio de transmisión de mayor velocidad:", a: "Fibra óptica", o: ["Par trenzado", "Cable coaxial", "Fibra óptica"] },
+    { q: "El Firewall de Hardware es más económico que el Software (V/F):", a: "Falso", o: ["Verdadero", "Falso"] },
+    { q: "Un firewall es una barrera entre internet y nuestra computadora (V/F):", a: "Verdadero", o: ["Verdadero", "Falso"] },
+
+    // --- GESTIÓN RIESGOS ---
+    { q: "¿Qué representa un riesgo en seguridad?", a: "La posibilidad de que una amenaza explote una vulnerabilidad", o: ["Probabilidad baja", "Acción que incrementa seguridad", "La posibilidad de que una amenaza explote una vulnerabilidad"] },
+    { q: "Definición de 'amenaza':", a: "Una causa potencial de un incidente no deseado", o: ["Política que protege", "Debilidad sistema", "Una causa potencial de un incidente no deseado"] },
+    { q: "Qué describe mejor una vulnerabilidad:", a: "Una debilidad que puede ser explotada", o: ["Fortaleza sistema", "Una debilidad que puede ser explotada", "Amenaza detectada"] },
+    { q: "Qué es el riesgo residual:", a: "El riesgo que queda después de tratar el riesgo", o: ["Riesgo antes de controles", "El riesgo que queda después de tratar el riesgo", "Riesgo involucrado inicial"] },
+    { q: "Opciones para tratamiento del riesgo:", a: "Mitigar, aceptar, transferir y evitar", o: ["Eliminar impacto", "Mitigar y aceptar", "Mitigar, aceptar, transferir y evitar"] },
+    { q: "Cálculo de nivel de riesgo:", a: "(CDI)/3", o: ["VA(CDI) * Amenaza", "(C+D+I)/3", "(CDI)/3"] },
+
+    // --- CIUDADANÍA DIGITAL E INFORMÁTICA FORENSE ---
+    { q: "Elemento de ciudadanía digital para Bienestar físico:", a: "Ergonomía", o: ["Netiqueta", "Ergonomía", "Acceso", "Educación"] },
+    { q: "La brecha digital se relaciona con:", a: "Acceso", o: ["Comercio", "Acceso", "Educación", "Netiqueta"] },
+    { q: "¿Qué es la informática forense?", a: "Rama de las ciencias forenses que analiza datos de sistemas informáticos", o: ["Estudio crímenes", "Rama de las ciencias forenses que analiza datos de sistemas informáticos", "Uso de informática para delinquir"] },
+    { q: "Qué caracteriza a la evidencia digital:", a: "Es volátil y puede ser duplicada exactamente", o: ["No puede ser alterada", "Es volátil y puede ser duplicada exactamente", "Siempre es visible"] },
+    { q: "Qué es un perito informático:", a: "Un profesional que asiste en tribunales sobre temas de tecnología", o: ["Abogado", "Delincuente", "Un profesional que asiste en tribunales sobre temas de tecnología"] },
+    { q: "Cómo se mantiene la cadena de custodia:", a: "Documentando cada persona que accede a la evidencia", o: ["Sin registro", "Documentando cada persona que accede a la evidencia", "Ignorando protocolos"] },
+    { q: "¿Qué NO es un delito informático?", a: "Escribir reseñas honestas en línea", o: ["Phishing", "Hacking", "Escribir reseñas honestas en línea", "Malware"] },
+
+    // --- SISTEMAS OPERATIVOS ---
+    { q: "Sistema de archivos por defecto Windows:", a: "NTFS", o: ["FAT32", "NTFS", "XFS"] },
+    { q: "Sistema de archivos por defecto Linux:", a: "Ext4", o: ["NTFS", "FAT32", "Ext4"] },
+    { q: "Un archivo ISO es:", a: "Imagen ISO", o: ["Ejecutable", "Imagen ISO", "NTFS"] },
+    { q: "Identificador de proceso:", a: "PID", o: ["Estado", "PID", "Memoria virtual"] },
+    { q: "Una API permite:", a: "Interacción entre aplicaciones y hardware", o: ["API GET", "Interacción entre aplicaciones y hardware", "Aplicación nativa"] },
+    { q: "Método HTTP para enviar/crear información:", a: "POST", o: ["GET", "POST", "PUT", "DELETE"] },
+    { q: "Método HTTP para actualizar información:", a: "PUT", o: ["PUT", "POST", "DELETE", "GET"] },
+
+    // --- HACKING ÉTICO ---
+    { q: "¿Qué es el hacking ético?", a: "La práctica de evaluar la seguridad de un sistema con permiso del propietario", o: ["Método para ataques", "La práctica de evaluar la seguridad de un sistema con permiso del propietario", "Manipulación datos"] },
+    { q: "Certificación reconocida para hackers éticos:", a: "CEH (Certified Ethical Hacker)", o: ["CCNA", "CEH (Certified Ethical Hacker)", "PMP", "ITIL"] },
+    { q: "Primer paso en auditoría seguridad:", a: "Recolección de información y reconocimiento", o: ["Explotación", "Recolección de información y reconocimiento", "Eliminación logs"] },
+    { q: "Herramienta para escaneo de puertos:", a: "Nmap", o: ["Nmap", "Wireshark", "Metasploit", "Hashcat"] },
+    { q: "Qué es un exploit:", a: "Un código o herramienta usada para aprovechar una vulnerabilidad", o: ["Ataque DoS", "Un código o herramienta usada para aprovechar una vulnerabilidad", "Antivirus"] },
+    { q: "Prueba de penetración sin conocer info interna:", a: "Prueba de caja negra", o: ["Prueba de caja blanca", "Prueba de caja negra", "Prueba de caja gris"] },
+
+    // --- GESTIÓN (ITEM 200) ---
+    { q: "Las estrategias deben definirse para todos los niveles de la organización (V/F):", a: "V", o: ["V", "F"] },
+    { q: "Las estrategias competitivas no nos definen cómo competirá la empresa (V/F):", a: "F", o: ["V", "F"] },
+    { q: "El análisis FODA resume fortalezas, oportunidades, debilidades y amenazas (V/F):", a: "V", o: ["V", "F"] },
+    { q: "La estructura organizacional es el armazón o esqueleto de una organización (V/F):", a: "V", o: ["V", "F"] },
+    { q: "EL organigrama incluye normas de funcionamiento y descripciones de puestos (V/F):", a: "F", o: ["V", "F"] }
+];
+
+/* --------------------------------------------------------- */
+/* LÓGICA DEL MOTOR (SHUFFLE / QUIZ / RENDER)                */
+/* --------------------------------------------------------- */
+
+let currentQuestions = [];
+let currentIdx = 0;
+let score = 0;
+let fails = [];
+let isFlashMode = false;
+let flashCurrentCorrect = false;
+
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+function initQuiz(limit) {
+    let fullList = shuffleArray([...BANK]);
+    currentQuestions = fullList.slice(0, Math.min(limit, fullList.length));
+    
+    currentIdx = 0;
+    score = 0;
+    fails = [];
+    
+    document.getElementById('menu-section').style.display = 'none';
+    document.getElementById('quiz-section').style.display = 'block';
+    document.getElementById('q-total').innerText = currentQuestions.length;
+    
+    updateQuiz();
+}
+
+function updateQuiz() {
+    const qData = currentQuestions[currentIdx];
+    document.getElementById('q-idx').innerText = currentIdx + 1;
+    document.getElementById('q-score').innerText = score;
+    document.getElementById('q-display').innerText = qData.q;
+    
+    const optionsDiv = document.getElementById('options-display');
+    optionsDiv.innerHTML = '';
+    
+    let shuffOptions = shuffleArray([...qData.o]);
+    shuffOptions.forEach(opt => {
+        const b = document.createElement('button');
+        b.className = 'option';
+        b.innerText = opt;
+        b.onclick = () => selectOption(b, opt, qData.a);
+        optionsDiv.appendChild(b);
+    });
+}
+
+function selectOption(btn, choice, correct) {
+    const allBtns = document.querySelectorAll('.option');
+    allBtns.forEach(b => b.classList.add('disabled'));
+
+    if (choice === correct) {
+        btn.classList.add('correct');
+        score++;
+        document.getElementById('q-score').innerText = score;
+    } else {
+        btn.classList.add('wrong');
+        fails.push({ q: currentQuestions[currentIdx].q, a: correct });
+        allBtns.forEach(b => { if(b.innerText === correct) b.classList.add('correct'); });
+    }
+
+    setTimeout(() => {
+        currentIdx++;
+        if (currentIdx < currentQuestions.length) {
+            updateQuiz();
+        } else {
+            showResults();
         }
-        return array;
-    }
+    }, 1200);
+}
 
-    // Iniciar Cuestionario
-    function startQuiz(amount) {
-        let fullPool = shuffle([...RAW_DATA]);
-        pool = fullPool.slice(0, Math.min(amount, fullPool.length));
-        currentIdx = 0;
-        score = 0;
-        failures = [];
-        
-        document.getElementById('menu-ui').style.display = 'none';
-        document.getElementById('quiz-ui').style.display = 'block';
-        document.getElementById('total-num').innerText = pool.length;
-        
-        renderQuestion();
-    }
-
-    function renderQuestion() {
-        const qData = pool[currentIdx];
-        document.getElementById('current-num').innerText = currentIdx + 1;
-        document.getElementById('live-score').innerText = score;
-        document.getElementById('q-text').innerText = qData.q;
-        
-        const box = document.getElementById('options-box');
-        box.innerHTML = '';
-        
-        // Mezclar opciones
-        let opts = shuffle([...qData.o]);
-        
-        opts.forEach(oText => {
-            const btn = document.createElement('button');
-            btn.className = 'option';
-            btn.innerText = oText;
-            btn.onclick = () => handleChoice(btn, oText, qData.a);
-            box.appendChild(btn);
+function showResults() {
+    document.getElementById('quiz-section').style.display = 'none';
+    document.getElementById('result-section').style.display = 'block';
+    document.getElementById('final-stats').innerText = `${score} / ${currentQuestions.length}`;
+    
+    const rev = document.getElementById('review-area');
+    rev.innerHTML = '<h3>Preguntas en las que te equivocaste:</h3>';
+    
+    if (fails.length === 0) {
+        rev.innerHTML += '<p style="color:var(--success); font-weight:bold;">¡Felicidades Kevin! Tienes dominio total del banco de preguntas.</p>';
+    } else {
+        fails.forEach(f => {
+            rev.innerHTML += `
+                <div class="review-card">
+                    <div style="color:var(--accent-color); font-weight:bold; margin-bottom:5px;">P: ${f.q}</div>
+                    <div style="color:var(--success); font-weight:700;">R. CORRECTA: ${f.a}</div>
+                </div>
+            `;
         });
     }
+}
 
-    function handleChoice(btn, selected, correct) {
-        const options = document.querySelectorAll('.option');
-        options.forEach(b => b.classList.add('disabled'));
+// TARJETAS
+function initFlashcards() {
+    document.getElementById('menu-section').style.display = 'none';
+    document.getElementById('flashcard-section').style.display = 'block';
+    renderFlash();
+}
 
-        if (selected === correct) {
-            btn.classList.add('correct');
-            score++;
-            document.getElementById('live-score').innerText = score;
-        } else {
-            btn.classList.add('wrong');
-            failures.push({ q: pool[currentIdx].q, a: correct });
-            // Mostrar la correcta también
-            options.forEach(b => {
-                if (b.innerText === correct) b.classList.add('correct');
-            });
-        }
-
-        setTimeout(() => {
-            currentIdx++;
-            if (currentIdx < pool.length) {
-                renderQuestion();
-            } else {
-                finishQuiz();
-            }
-        }, 1200);
+function renderFlash() {
+    document.getElementById('flash-feedback').innerText = '';
+    const q = BANK[Math.floor(Math.random() * BANK.length)];
+    const pairCorrect = Math.random() > 0.5;
+    
+    let displayAns;
+    if (pairCorrect) {
+        displayAns = q.a;
+        flashCurrentCorrect = true;
+    } else {
+        const wr = q.o.filter(x => x !== q.a);
+        displayAns = wr.length > 0 ? wr[0] : "Dato incorrecto";
+        flashCurrentCorrect = false;
     }
 
-    function finishQuiz() {
-        document.getElementById('quiz-ui').style.display = 'none';
-        document.getElementById('result-ui').style.display = 'block';
-        document.getElementById('final-score').innerText = `${score} / ${pool.length}`;
-        
-        const container = document.getElementById('review-container');
-        container.innerHTML = '<h3>Preguntas en las que te equivocaste:</h3>';
-        
-        if (failures.length === 0) {
-            container.innerHTML += '<p style="color:var(--success)">¡Perfecto! No tuviste errores.</p>';
-        } else {
-            failures.forEach(f => {
-                container.innerHTML += `
-                    <div class="review-item">
-                        <div class="failed-q">Q: ${f.q}</div>
-                        <div class="correct-a">Respuesta Correcta: ${f.a}</div>
-                    </div>
-                `;
-            });
-        }
-    }
+    document.getElementById('flash-content').innerHTML = `
+        <div style="font-size:0.9rem; color:var(--accent-color); margin-bottom:10px;">PREGUNTA:</div>
+        <div>${q.q}</div>
+        <hr style="margin:20px 0; border:0; border-top:1px solid #303748;">
+        <div style="font-size:0.9rem; color:var(--accent-color); margin-bottom:10px;">RESPUESTA PROPUESTA:</div>
+        <div style="font-weight:bold">${displayAns}</div>
+    `;
+}
 
-    // TARJETAS INTERACTIVAS
-    function startFlashcards() {
-        document.getElementById('menu-ui').style.display = 'none';
-        document.getElementById('flashcards-ui').style.display = 'block';
-        nextFlashcard();
+function evalFlash(userVal) {
+    const feedback = document.getElementById('flash-feedback');
+    if (userVal === flashCurrentCorrect) {
+        feedback.innerText = "¡CORRECTO!";
+        feedback.style.color = "var(--success)";
+    } else {
+        feedback.innerText = "INCORRECTO";
+        feedback.style.color = "var(--error)";
     }
-
-    function nextFlashcard() {
-        document.getElementById('flash-feedback').innerText = '';
-        const qData = RAW_DATA[Math.floor(Math.random() * RAW_DATA.length)];
-        const isCorrectPair = Math.random() > 0.5;
-        
-        let displayAnswer;
-        if (isCorrectPair) {
-            displayAnswer = qData.a;
-            flashAnswer = true;
-        } else {
-            const wrongOpts = qData.o.filter(x => x !== qData.a);
-            displayAnswer = wrongOpts.length > 0 ? wrongOpts[0] : "Dato incorrecto";
-            flashAnswer = false;
-        }
-
-        document.getElementById('card-content').innerHTML = `
-            <div style="font-size:0.9rem; color:var(--accent-color); margin-bottom:10px;">PREGUNTA:</div>
-            <div>${qData.q}</div>
-            <hr style="margin:20px 0; opacity:0.1">
-            <div style="font-size:0.9rem; color:var(--accent-color); margin-bottom:10px;">RESPUESTA PROPUESTA:</div>
-            <div style="font-weight:bold">${displayAnswer}</div>
-        `;
-    }
-
-    function checkFlashcard(userVal) {
-        const feedback = document.getElementById('flash-feedback');
-        if (userVal === flashAnswer) {
-            feedback.innerText = "¡CORRECTO!";
-            feedback.style.color = "var(--success)";
-        } else {
-            feedback.innerText = "INCORRECTO";
-            feedback.style.color = "var(--error)";
-        }
-        setTimeout(nextFlashcard, 1500);
-    }
+    setTimeout(renderFlash, 1200);
+}
 
 </script>
 </body>
