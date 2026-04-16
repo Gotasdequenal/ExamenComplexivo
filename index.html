@@ -3,464 +3,1577 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulador Complexivo Kevin v1.3</title>
+    <title>Simulador Kevin v1.5 - Edición 226 Preguntas</title>
     <style>
-        :root {
-            --bg-color: #0b0e14;
-            --card-bg: #151921;
-            --text-color: #d1d5db;
-            --accent-color: #3b82f6;
-            --success: #16a34a;
-            --error: #dc2626;
-            --border: #2d3748;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        header {
-            width: 100%;
-            padding: 25px;
-            text-align: center;
-            background: linear-gradient(135deg, #0f172a, #1e293b);
-            border-bottom: 3px solid var(--accent-color);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .header-tag { font-size: 1.4rem; font-weight: bold; color: #fff; text-transform: uppercase; letter-spacing: 1px; }
-        .version-tag { font-size: 0.85rem; color: var(--accent-color); margin-top: 8px; font-weight: 600; }
-
-        .container {
-            width: 92%;
-            max-width: 950px;
-            background-color: var(--card-bg);
-            padding: 30px;
-            border-radius: 15px;
-            border: 1px solid var(--border);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
-            margin: 30px 0;
-            text-align: center;
-        }
-
-        .menu-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 20px;
-            margin-top: 30px;
-        }
-
-        button {
-            padding: 18px;
-            font-size: 1.05rem;
-            cursor: pointer;
-            border: none;
-            border-radius: 10px;
-            background-color: var(--accent-color);
-            color: white;
-            font-weight: bold;
-            transition: all 0.2s ease;
-        }
-
-        button:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4); filter: brightness(1.1); }
-        .btn-nav { background-color: var(--error); padding: 10px 20px; font-size: 0.9rem; }
-
-        .stats-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #1a202c;
-            padding: 15px 25px;
-            border-radius: 12px;
-            margin-bottom: 25px;
-            border: 1px solid var(--border);
-        }
-
-        .question-text {
-            text-align: left;
-            font-size: 1.25rem;
-            margin-bottom: 25px;
-            line-height: 1.7;
-            font-weight: 500;
-            color: #fff;
-        }
-
-        .option {
-            display: block;
-            width: 100%;
-            text-align: left;
-            margin: 14px 0;
-            background-color: #1f2937;
-            border: 1px solid var(--border);
-            padding: 18px;
-            border-radius: 12px;
-            color: var(--text-color);
-            font-size: 1.05rem;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .option:hover:not(.disabled) { background-color: #374151; border-color: var(--accent-color); }
-        .option.correct { background-color: var(--success) !important; color: white; border-color: #fff; font-weight: bold; }
-        .option.wrong { background-color: var(--error) !important; color: white; border-color: #fff; }
+        :root { --bg: #0b0e14; --card: #151921; --text: #d1d5db; --blue: #3b82f6; --green: #16a34a; --red: #dc2626; --border: #2d3748; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; flex-direction: column; align-items: center; }
+        header { width: 100%; padding: 25px; text-align: center; background: #0f172a; border-bottom: 3px solid var(--blue); position: sticky; top: 0; z-index: 100; }
+        .container { width: 92%; max-width: 900px; background: var(--card); padding: 30px; border-radius: 15px; border: 1px solid var(--border); margin: 30px 0; text-align: center; }
+        .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 25px; }
+        button { padding: 18px; font-size: 1rem; cursor: pointer; border: none; border-radius: 10px; background: var(--blue); color: white; font-weight: bold; transition: 0.2s; }
+        button:hover { transform: translateY(-3px); filter: brightness(1.1); }
+        .btn-nav { background: var(--red); padding: 10px 20px; font-size: 0.8rem; }
+        .stats { display: flex; justify-content: space-between; align-items: center; background: #1a202c; padding: 15px; border-radius: 12px; margin-bottom: 25px; border: 1px solid var(--border); }
+        .q-text { text-align: left; font-size: 1.25rem; margin-bottom: 25px; color: #fff; line-height: 1.5; }
+        .option { display: block; width: 100%; text-align: left; margin: 12px 0; background: #1f2937; border: 1px solid var(--border); padding: 18px; border-radius: 12px; color: var(--text); cursor: pointer; font-size: 1rem; }
+        .option.correct { background: var(--green) !important; color: white; border-color: #fff; }
+        .option.wrong { background: var(--red) !important; color: white; border-color: #fff; }
         .option.disabled { cursor: default; }
-
-        .review-card {
-            text-align: left;
-            background: #111827;
-            padding: 20px;
-            margin-bottom: 15px;
-            border-radius: 10px;
-            border-left: 5px solid var(--error);
-        }
-
-        #quiz-section, #flashcard-section, #result-section { display: none; }
-
-        .flash-box {
-            background: #1e293b;
-            padding: 50px 30px;
-            border-radius: 20px;
-            border: 2px solid var(--accent-color);
-            font-size: 1.4rem;
-            min-height: 200px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            margin-bottom: 30px;
-        }
+        .review-card { text-align: left; background: #111827; padding: 15px; margin-bottom: 10px; border-radius: 8px; border-left: 5px solid var(--red); }
+        #quiz-sec, #flash-sec, #res-sec { display: none; }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="header-tag">CUESTIONARIO CREADO POR JOSUÉ PARA EL GUAPO DE KEVIN</div>
-    <div class="version-tag">VERSIÓN 1.3 - BANCO DE 226 PREGUNTAS EXACTAS</div>
+    <div style="font-size: 1.4rem; font-weight: bold; color: #fff;">CUESTIONARIO CREADO POR JOSUÉ PARA EL GUAPO DE KEVIN</div>
+    <div style="color: var(--blue); margin-top: 8px;">VERSIÓN 1.5 - MOTOR PARA 226 PREGUNTAS</div>
 </header>
 
-<!-- PANTALLA INICIAL -->
-<div class="container" id="menu-section">
-    <h1>Simulador de Examen Complexivo</h1>
-    <p>Selecciona una opción para comenzar. El orden siempre es aleatorio.</p>
+<div class="container" id="menu-sec">
+    <h1>Simulador Complexivo</h1>
+    <p>Elige el modo de estudio. El sistema barajará las preguntas automáticamente.</p>
     <div class="menu-grid">
-        <button onclick="initQuiz(20)">Cuestionario 20/20</button>
-        <button onclick="initQuiz(50)">Cuestionario 50/50</button>
-        <button onclick="initQuiz(100)">Cuestionario 100/100</button>
-        <button onclick="initQuiz(226)" style="background: linear-gradient(to right, #2563eb, #7c3aed);">BANCO COMPLETO (226)</button>
-        <button style="background: #4b5563;" onclick="initFlashcards()">MODO TARJETAS (V/F)</button>
+        <button onclick="initQuiz(20)">Modo 20 Preguntas</button>
+        <button onclick="initQuiz(50)">Modo 50 Preguntas</button>
+        <button onclick="initQuiz(100)">Modo 100 Preguntas</button>
+        <button id="btn-total" onclick="initQuiz(BANK.length)" style="background: linear-gradient(to right, #2563eb, #7c3aed);">BANCO COMPLETO (---)</button>
+        <button style="background: #4b5563;" onclick="initFlash()">MODO TARJETAS (ESTUDIO)</button>
     </div>
 </div>
 
-<!-- SECCIÓN CUESTIONARIO -->
-<div class="container" id="quiz-section">
-    <div class="stats-bar">
+<div class="container" id="quiz-sec">
+    <div class="stats">
         <button class="btn-nav" onclick="location.reload()">VOLVER AL INICIO</button>
         <span>Pregunta: <b id="q-idx">0</b> / <b id="q-total">0</b></span>
         <span>Puntaje: <b id="q-score">0</b></span>
     </div>
-    <div class="question-text" id="q-display"></div>
-    <div id="options-display"></div>
+    <div class="q-text" id="q-display"></div>
+    <div id="opts-display"></div>
 </div>
 
-<!-- SECCIÓN TARJETAS -->
-<div class="container" id="flashcard-section">
-    <button class="btn-nav" onclick="location.reload()" style="margin-bottom: 25px;">VOLVER AL INICIO</button>
-    <p>¿Es correcta esta relación Pregunta - Respuesta?</p>
-    <div class="flash-box" id="flash-content"></div>
-    <div style="display: flex; gap: 30px; justify-content: center;">
-        <button style="background: var(--error); width: 120px; height: 70px; font-size: 2rem;" onclick="evalFlash(false)">✘</button>
-        <button style="background: var(--success); width: 120px; height: 70px; font-size: 2rem;" onclick="evalFlash(true)">✔</button>
+<div class="container" id="flash-sec">
+    <button class="btn-nav" onclick="location.reload()" style="margin-bottom: 20px;">SALIR</button>
+    <div id="flash-card" style="background:#1e293b; padding:40px; border-radius:15px; border:2px solid var(--blue); font-size:1.4rem; min-height:180px; display: flex; flex-direction: column; justify-content: center;"></div>
+    <div style="margin-top:25px; display:flex; gap:20px; justify-content:center;">
+        <button style="background:var(--red); width:120px; font-size:2rem;" onclick="evalFlash(false)">✘</button>
+        <button style="background:var(--green); width:120px; font-size:2rem;" onclick="evalFlash(true)">✔</button>
     </div>
-    <div id="flash-feedback" style="margin-top: 25px; font-size: 1.2rem; font-weight: 700;"></div>
 </div>
 
-<!-- SECCIÓN RESULTADOS -->
-<div class="container" id="result-section">
-    <h1>Resultados del Simulador</h1>
-    <div style="font-size: 4rem; font-weight: 800; color: var(--accent-color); margin: 20px 0;" id="final-stats"></div>
-    <div id="review-area"></div>
-    <br>
-    <button onclick="location.reload()" style="width: 100%;">VOLVER AL INICIO / REPETIR</button>
+<div class="container" id="res-sec">
+    <h1>Resultados del Examen</h1>
+    <div style="font-size: 4.5rem; color: var(--blue); font-weight: 800;" id="final-stats"></div>
+    <div id="review-area" style="margin-top: 30px;"></div>
+    <button onclick="location.reload()" style="width:100%; margin-top:30px;">REINTENTAR / VOLVER AL INICIO</button>
 </div>
 
 <script>
-/* --------------------------------------------------------- */
-/* BANCO DE DATOS OFICIAL (226 PREGUNTAS TEXTUALES)          */
-/* --------------------------------------------------------- */
+/* AUDIOS: Súbelos a tu GitHub con estos nombres exactos */
+const soundOk = new Audio('swain.mp3');
+const soundNo = new Audio('incorrecto.mp3');
+
+/* =========================================================
+   AGREGA LAS 226 PREGUNTAS AQUÍ ABAJO
+   ========================================================= */
 const BANK = [
-    // --- BASES DE DATOS ---
-    { q: "¿Qué es una base de datos?", a: "Un conjunto de datos organizados y almacenados sistemáticamente", o: ["Un conjunto de datos organizados y almacenados sistemáticamente", "Conjunto de valores que tomar un atributo", "Uno o varios que sirvan para distinguir cada relación", "Ninguna de las anteriores"] },
-    { q: "Utilizan un sistema de almacenamiento de información que se caracteriza por no utilizar el lenguaje SQL, es una base de datos:", a: "No relacionales", o: ["Relacionales", "Multidimensionales", "No relacionales", "Transaccionales"] },
-    { q: "Es el tipo de datos que se utiliza para almacenar datos de tipo cadena no Unicode de longitud variable:", a: "varchar(x)", o: ["int (x)", "char (x)", "varchar(x)", "smallInt"] },
-    { q: "¿Cuál de los siguientes es un tipo de base de datos?", a: "Todas las respuestas anteriores son correctas", o: ["Relacional", "NoSQL", "Orientada a objetos", "Todas las respuestas anteriores son correctas"] },
-    { q: "De los siguientes campos de la tabla de una base de datos, indica cual podría ser una clave (o llave) primaria (o principal):", a: "Cédula de Identidad", o: ["Nombres y apellidos de un usuario", "Profesión", "Cédula de Identidad", "Cualquiera de las anteriores"] },
-    { q: "Un SGBD es un software que permite a los usuarios acceder a los datos de una base de datos. (V/F):", a: "V", o: ["V", "F"] },
-    { q: "Una base de datos relacional es un conjunto de tablas relacionadas entre sí. (V/F):", a: "V", o: ["V", "F"] },
-    { q: "Una columna puede tener más de una clave principal. (V/F):", a: "F", o: ["V", "F"] },
-    { q: "Un índice es un campo que se utiliza para mejorar el rendimiento de las consultas. (V/F):", a: "V", o: ["V", "F"] },
-    { q: "Una restricción de integridad referencial garantiza que los valores de una columna en una tabla sean consistentes con los valores de una columna en otra tabla. (V/F):", a: "V", o: ["V", "F"] },
-    { q: "Una base de datos es una colección de datos relacionados que se almacenan de manera organizada. (Completar):", a: "colección", o: ["colección", "tabla", "SGBD", "campo"] },
-    { q: "Un software que permite a los usuarios crear, modificar y acceder a los datos de una base de datos es un:", a: "SGBD", o: ["SGBD", "SQL", "Registro", "Campo"] },
-    { q: "Una colección de registros relacionados es una:", a: "tabla", o: ["tabla", "base de datos", "fila", "columna"] },
-    { q: "Una fila de datos en una tabla es un:", a: "registro", o: ["registro", "campo", "SGBD", "atributo"] },
-    { q: "Una columna de datos en una tabla es un:", a: "campo", o: ["campo", "registro", "valor", "clave"] },
-    { q: "Las transacciones en SQL Server garantizan la durabilidad de los datos.", a: "Verdadero", o: ["Verdadero", "Falso"] },
-    { q: "El respaldo diferencial en SQL Server guarda todos los datos desde el inicio de la base de datos.", a: "Falso", o: ["Verdadero", "Falso"] },
-    { q: "La auditoría en bases de datos es irrelevante para el cumplimiento normativo.", a: "Falso", o: ["Verdadero", "Falso"] },
-    { q: "La administración reactiva en bases de datos busca anticiparse a problemas antes de que ocurran.", a: "Falso", o: ["Verdadero", "Falso"] },
-    { q: "¿Qué característica de las transacciones asegura que 'todo o nada' se ejecute?", a: "Atomicidad", o: ["Aislamiento", "Consistencia", "Durabilidad", "Atomicidad"] },
-    { q: "¿Cuál opción representa un respaldo completo?", a: "BACKUP DATABASE TO DISK ... WITH FORMAT;", o: ["BACKUP DATABASE TO DISK ... WITH DIFFERENTIAL;", "BACKUP LOG ... TO DISK ...;", "BACKUP DATABASE TO DISK ... WITH FORMAT;"] },
-    { q: "¿Cuál opción describe el ciclo de vida de una base de datos?", a: "Planificación, análisis, diseño, implementación, mantenimiento, retiro", o: ["Implementación, mantenimiento, retiro", "Diseño, análisis, ejecución", "Planificación, análisis, diseño, implementación, mantenimiento, retiro", "Análisis, diseño, ejecución, mantenimiento"] },
-    { q: "Cómo contribuye el principio de privilegio mínimo a la seguridad de base de datos:", a: "Asigna a cada usuario solo los permisos estrictamente necesarios para realizar su trabajo, reduciendo el riesgo de accesos no autorizados.", o: ["Asigna a cada usuario solo los permisos estrictamente necesarios para realizar su trabajo, reduciendo el riesgo de accesos no autorizados.", "Concede permisos elevados", "Permite que cualquier usuario acceda a todas las tablas", "Otorga privilegios máximos por defecto"] },
-    { q: "Modo de autenticación con integración sencilla con SO y sin gestión de contraseñas adicionales:", a: "Autenticación de Windows", o: ["Autenticación de Windows", "Autenticación de SQL Server"] },
-    { q: "Del código 'GRANT SELECT ON dbo.Ventas TO UsuarioLectura', ¿cuál es correcta?", a: "El código crea un usuario en la base de datos y le otorga permisos de lectura en la tabla Ventas.", o: ["El código otorga permisos de escritura", "El código crea un usuario y otorga permisos de lectura en la tabla Ventas.", "El código otorga permisos de eliminación", "El código otorga permisos de modificación"] },
-    { q: "¿Por qué es importante realizar auditorías periódicas en los roles y permisos?", a: "Para garantizar que solo los usuarios autorizados tengan acceso a información sensible.", o: ["Para garantizar que solo los usuarios autorizados tengan acceso a información sensible.", "Para aumentar el tamaño de la BD", "Para compartir contraseñas"] },
-    { q: "Concepto sysadmin:", a: "Control total sobre el servidor SQL, igual que el usuario sa.", o: ["Control total sobre el servidor SQL, igual que el usuario sa.", "Permite tareas de configuración y apagado", "Permite crear y eliminar bases de datos"] },
-    { q: "Concepto serveradmin:", a: "Permite realizar tareas administrativas como configuración y apagado del servidor.", o: ["Control total sobre el servidor", "Permite realizar tareas administrativas como configuración y apagado del servidor.", "Permite crear bases de datos"] },
-    { q: "Concepto dbcreator:", a: "Permite crear, modificar y eliminar bases de datos.", o: ["Control total", "Permite configurar servidor", "Permite crear, modificar y eliminar bases de datos."] },
-    { q: "Tipo de trigger para 'AFTER INSERT' en tabla Clientes:", a: "AFTER INSERT", o: ["BEFORE INSERT", "AFTER INSERT", "INSTEAD OF INSERT", "DELETE TRIGGER"] },
-    { q: "Instrucción faltante en bloque TRY/CATCH para transacciones:", a: "Begin Transaction, Commit Transaction, Rollback Transaction", o: ["Begin Transaction, Commit Transaction, Rollback Transaction", "Start Transaction, End Transaction", "Transaction, Exec Transaction", "Open Transaction, Close Transaction"] },
 
-    // --- ALGORITMOS ---
-    { q: "Definición de Algoritmo:", a: "Conjunto de ordenes secuenciales y jerárquicas", o: ["Inicio, Proceso y Fin", "Conjunto de ordenes secuenciales y jerárquicas", "Entrada, Proceso y salida"] },
-    { q: "Relación Algoritmo y Programa:", a: "Programa implementa un algoritmo", o: ["Son lo mismo", "Algoritmo implementa un programa", "Programa implementa un algoritmo"] },
-    { q: "Alternativas para representar algoritmo:", a: "Pseudocódigo y diagramas de flujo", o: ["Cuadros y rombos", "Pseudocódigo y diagramas de flujo", "Lenguaje de programación"] },
-    { q: "Pseudocódigo:", a: "Se expresa en lenguaje natural", o: ["Utiliza comandos de programación", "Se expresa en lenguaje natural", "Los comandos de un lenguaje"] },
-    { q: "Característica de un algoritmo:", a: "Es finito, preciso y definido", o: ["No tiene fin", "No contempla un orden", "Es finito, preciso y definido"] },
-    { q: "Partes del algoritmo:", a: "Inicio, proceso y salida", o: ["Inicio, proceso y fin", "Variables y constantes", "Inicio, proceso y salida"] },
-    { q: "Cual ejemplo NO es un algoritmo:", a: "El mar", o: ["El mar", "Ir al cine", "Sumar dos números"] },
-    { q: "Dispositivos de entradas:", a: "Mouse, teclado y micrófono", o: ["Mouse, teclado y monitor", "Mouse, teclado y micrófono", "Mouse, teclado e impresora"] },
-    { q: "Dispositivos de salida:", a: "Mouse, monitor e impresora", o: ["Parlantes, teclado y monitor", "Parlantes, teclado y micrófono", "Mouse, monitor e impresora"] },
-    { q: "Resultado (1 OR 1):", a: "1", o: ["1", "0", "Ninguno"] },
-    { q: "Resultado (1 AND 0):", a: "0", o: ["1", "0", "Ninguno"] },
-    { q: "Definición de variable:", a: "Elemento de dato que permite almacenar de forma temporal un valor", o: ["Elemento de dato que permite almacenar de forma temporal un valor", "Elemento para forma permanente", "No se identifica con nombre"] },
-    { q: "Definición de constante:", a: "Elemento de dato que permite almacenar de forma permanente un valor", o: ["Forma temporal", "Elemento de dato que permite almacenar de forma permanente un valor", "No se identifica con nombre"] },
+    {
+        q: "¿Qué es una base de datos?",
+        a: "Un conjunto de datos organizados y almacenados sistemáticamente",
+        o: ["Un conjunto de datos organizados y almacenados sistemáticamente", "Conjunto de valores que tomar un atributo", "Uno o varios que sirvan para distinguir cada relación", "Ninguna de las anteriores"]
+    },
+    {
+        q: "Utilizan un sistema de almacenamiento de información que se caracteriza por no utilizar el lenguaje SQL, es una base de datos:",
+        a: "No relacionales",
+        o: ["Relacionales", "Multidimensionales", "No relacionales", "Transaccionales"]
+    },
 
-    // --- CIBERSEGURIDAD ---
-    { q: "Definición de Seguridad de Aplicaciones:", a: "Son Metodologías, estándares, herramientas o técnicas", o: ["Permisos de Smartphone", "Elemento permanente", "Son Metodologías, estándares, herramientas o técnicas"] },
-    { q: "Vulnerabilidades en las aplicaciones:", a: "Todas las aplicaciones pueden tener vulnerabilidades", o: ["Aplicaciones sin vulnerabilidades", "Todas las aplicaciones pueden tener vulnerabilidades", "No hay vulnerabilidades"] },
-    { q: "Seguridad informática:", a: "Disciplina que se ocupa de diseñar las normas, procedimientos, métodos y técnicas", o: ["Disciplina que se ocupa de diseñar las normas, procedimientos, métodos y técnicas", "Password difícil", "Guardar equipos"] },
-    { q: "Seguridad de la Información:", a: "Medidas y actividades que procuran proteger los activos de información", o: ["Cuidados de activos y pasivos", "Medidas y actividades que procuran proteger los activos de información", "Cuidado datos personales"] },
-    { q: "Componentes de la Tríada de Seguridad:", a: "Integridad, Confidencialidad y Disponibilidad", o: ["Hardware, Software y Redes", "Amenazas, Riesgos", "Integridad, Confidencialidad y Disponibilidad"] },
-    { q: "Objetivo de la seguridad de aplicaciones:", a: "Garantizar el correcto funcionamiento de las aplicaciones y su entorno", o: ["Respaldo información", "Garantizar el correcto funcionamiento de las aplicaciones y su entorno", "Base de datos en funcionamiento"] },
-    { q: "Tipos de Seguridad de aplicaciones:", a: "Seguridad de cloud, móviles y web", o: ["Android, IOS", "Seguridad de cloud, móviles y web", "Pública, privada"] },
-    { q: "OWASP es:", a: "Organización de voluntarios sin fines de lucro", o: ["Libros sobre seguridad", "Organización de voluntarios sin fines de lucro", "Un virus"] },
-    { q: "Recursos de OWASP:", a: "Publicaciones, software y capítulos locales", o: ["Equipos conectividad", "Antivirus", "Publicaciones, software y capítulos locales"] },
-    { q: "Ciclo de vida del software:", a: "Define las fases intermedias para desarrollar una aplicación", o: ["Indica hasta cuándo usar software", "Define las fases intermedias para desarrollar una aplicación", "Documento de creación"] },
-    { q: "La Inyección SQL es:", a: "Un ciberataque", o: ["Un virus", "Un ciberataque", "Un error de base de datos"] },
-    { q: "Inyección SQL es un método de infiltración que se vale de una vulnerabilidad (V/F):", a: "Verdadero", o: ["Verdadero", "Falso"] },
+    // --- Página 1 ---
 
-    // --- REDES ---
-    { q: "Concepto de Red:", a: "Conjunto dispositivos conectados que comparten recursos", o: ["Computadores en área común", "Conjunto dispositivos conectados que comparten recursos", "Páginas web"] },
-    { q: "La razón de existir una red es:", a: "Compartir y acceder a recursos", o: ["Navegar en internet", "Compartir y acceder a recursos", "Programación Web"] },
-    { q: "Principales tipos de Topología:", a: "Anillo, Estrella y Bus", o: ["FTP, TCP", "Acceder a recursos", "Anillo, Estrella y Bus"] },
-    { q: "En Topología Anillo, los dispositivos se distribuyen:", a: "En forma circular", o: ["Secuencialmente", "Unidos uno a uno", "En forma circular"] },
-    { q: "En Topología Bus, los dispositivos se distribuyen:", a: "Conectados a un solo cable", o: ["Conectados a un solo cable", "Unidos uno a uno", "En forma circular"] },
-    { q: "En Topología Estrella, los dispositivos se distribuyen:", a: "Conectados a un punto central", o: ["A un solo cable", "Conectados a un punto central", "En forma circular"] },
-    { q: "En Topología Malla, los dispositivos se distribuyen:", a: "Conectados a entre si", o: ["Conectados a entre si", "Unidos a un cable", "En forma circular"] },
-    { q: "Topología más antigua:", a: "Bus", o: ["Híbrida", "Malla", "Bus"] },
-    { q: "Topología más utilizada:", a: "Bus", o: ["Estrella", "Malla", "Bus"] },
-    { q: "Capas del modelo OSI:", a: "Física, enlace, red, transporte, sesión, presentación, aplicación.", o: ["TCP/IP", "FTP", "Física, enlace, red, transporte, sesión, presentación, aplicación."] },
-    { q: "Modelo jerárquico de redes:", a: "OSI Y TCP/IP", o: ["TCP y UDP", "FTP y HTTP", "OSI Y TCP/IP"] },
-    { q: "En la capa enlace de datos se transmite:", a: "Frames o marcos", o: ["Paquetes", "Bits", "Frames o marcos"] },
-    { q: "En la capa de red se transmite:", a: "Paquetes", o: ["Paquetes", "Bits", "Frames o marcos"] },
-    { q: "Tipos de redes según la zona:", a: "LAN, MAN y WAN", o: ["Internet, antenas", "Satelital", "LAN, MAN y WAN"] },
-    { q: "Medio de transmisión de mayor velocidad:", a: "Fibra óptica", o: ["Par trenzado", "Cable coaxial", "Fibra óptica"] },
-    { q: "El Firewall de Hardware es más económico que el Software (V/F):", a: "Falso", o: ["Verdadero", "Falso"] },
-    { q: "Un firewall es una barrera entre internet y nuestra computadora (V/F):", a: "Verdadero", o: ["Verdadero", "Falso"] },
+// Pregunta 1
+{
+    q: "1. ¿Qué es una base de datos?",
+    a: "a. Un conjunto de datos organizados y almacenados sistemáticamente",
+    o: ["a. Un conjunto de datos organizados y almacenados sistemáticamente", "b. Conjunto de valores que tomar un atributo", "c. Uno o varios que sirvan para distinguir cada relación", "d. Ninguna de las anteriores"]
+},
+// Pregunta 2
+{
+    q: "2. Utilizan un sistema de almacenamiento de información que se caracteriza por no utilizar el lenguaje SQL, es una base de datos:",
+    a: "c. No relacionales",
+    o: ["a. Relacionales", "b. Multidimensionales", "c. No relacionales", "d. Transaccionales"]
+},
+// Pregunta 3
+{
+    q: "3. Es el tipo de datos que se utiliza para almacenar datos de tipo cadena no Unicode de longitud variable:",
+    a: "c. varchar(x)",
+    o: ["a. int (x)", "b. char (x)", "c. varchar(x)", "d. smallInt"]
+},
+// Pregunta 4
+{
+    q: "4. ¿Cuál de los siguientes es un tipo de base de datos?",
+    a: "d. Todas las respuestas anteriores son correctas",
+    o: ["a. Relacional", "b. NoSQL", "c. Orientada a objetos", "d. Todas las respuestas anteriores son correctas"]
+},
+// Pregunta 5
+{
+    q: "5. De los siguientes campos de la tabla de una base de datos, indica cual podría ser una clave (o llave) primaria (o principal):",
+    a: "c. Cédula de Identidad",
+    o: ["a. Nombres y apellidos de un usuario", "b. Profesión", "c. Cédula de Identidad", "d. Cualquiera de las anteriores"]
+},
+// Pregunta 6 (De la tabla de Verdadero o Falso)
+{
+    q: "6.1. Un SGBD es un software que permite a los usuarios acceder a los datos de una base de datos.",
+    a: "V",
+    o: ["V", "F"]
+},
+// Pregunta 7
+{
+    q: "6.2. Una base de datos relacional es un conjunto de tablas relacionadas entre sí.",
+    a: "V",
+    o: ["V", "F"]
+},
+// Pregunta 8
+{
+    q: "6.3. Una columna puede tener más de una clave principal.",
+    a: "F",
+    o: ["V", "F"]
+},
+// Pregunta 9
+{
+    q: "6.4. Un índice es un campo que se utiliza para mejorar el rendimiento de las consultas.",
+    a: "V",
+    o: ["V", "F"]
+},
+// Pregunta 10
+{
+    q: "6.5. Una restricción de integridad referencial garantiza que los valores de una columna en una tabla sean consistentes con los valores de una columna en otra tabla.",
+    a: "V",
+    o: ["V", "F"]
+},
 
-    // --- GESTIÓN RIESGOS ---
-    { q: "¿Qué representa un riesgo en seguridad?", a: "La posibilidad de que una amenaza explote una vulnerabilidad", o: ["Probabilidad baja", "Acción que incrementa seguridad", "La posibilidad de que una amenaza explote una vulnerabilidad"] },
-    { q: "Definición de 'amenaza':", a: "Una causa potencial de un incidente no deseado", o: ["Política que protege", "Debilidad sistema", "Una causa potencial de un incidente no deseado"] },
-    { q: "Qué describe mejor una vulnerabilidad:", a: "Una debilidad que puede ser explotada", o: ["Fortaleza sistema", "Una debilidad que puede ser explotada", "Amenaza detectada"] },
-    { q: "Qué es el riesgo residual:", a: "El riesgo que queda después de tratar el riesgo", o: ["Riesgo antes de controles", "El riesgo que queda después de tratar el riesgo", "Riesgo involucrado inicial"] },
-    { q: "Opciones para tratamiento del riesgo:", a: "Mitigar, aceptar, transferir y evitar", o: ["Eliminar impacto", "Mitigar y aceptar", "Mitigar, aceptar, transferir y evitar"] },
-    { q: "Cálculo de nivel de riesgo:", a: "(CDI)/3", o: ["VA(CDI) * Amenaza", "(C+D+I)/3", "(CDI)/3"] },
+ // --- Página 2 ---
 
-    // --- CIUDADANÍA DIGITAL E INFORMÁTICA FORENSE ---
-    { q: "Elemento de ciudadanía digital para Bienestar físico:", a: "Ergonomía", o: ["Netiqueta", "Ergonomía", "Acceso", "Educación"] },
-    { q: "La brecha digital se relaciona con:", a: "Acceso", o: ["Comercio", "Acceso", "Educación", "Netiqueta"] },
-    { q: "¿Qué es la informática forense?", a: "Rama de las ciencias forenses que analiza datos de sistemas informáticos", o: ["Estudio crímenes", "Rama de las ciencias forenses que analiza datos de sistemas informáticos", "Uso de informática para delinquir"] },
-    { q: "Qué caracteriza a la evidencia digital:", a: "Es volátil y puede ser duplicada exactamente", o: ["No puede ser alterada", "Es volátil y puede ser duplicada exactamente", "Siempre es visible"] },
-    { q: "Qué es un perito informático:", a: "Un profesional que asiste en tribunales sobre temas de tecnología", o: ["Abogado", "Delincuente", "Un profesional que asiste en tribunales sobre temas de tecnología"] },
-    { q: "Cómo se mantiene la cadena de custodia:", a: "Documentando cada persona que accede a la evidencia", o: ["Sin registro", "Documentando cada persona que accede a la evidencia", "Ignorando protocolos"] },
-    { q: "¿Qué NO es un delito informático?", a: "Escribir reseñas honestas en línea", o: ["Phishing", "Hacking", "Escribir reseñas honestas en línea", "Malware"] },
+// Pregunta 11 (Basada en 7.a)
+{
+    q: "7.a. Una base de datos es una ________ de datos relacionados que se almacenan de manera organizada.",
+    a: "colección",
+    o: ["colección", "tabla", "SGBD", "campo"]
+},
+// Pregunta 12 (Basada en 7.b)
+{
+    q: "7.b. Un ________ es un software que permite a los usuarios crear, modificar y acceder a los datos de una base de datos.",
+    a: "SGBD",
+    o: ["SGBD", "SQL", "Registro", "Campo"]
+},
+// Pregunta 13 (Basada en 7.c)
+{
+    q: "7.c. Una tabla es una colección de ________ relacionados.",
+    a: "registros",
+    o: ["campos", "registros", "datos", "tablas"]
+},
+// Pregunta 14 (Basada en 7.d)
+{
+    q: "7.d. Un registro es una ________ en una tabla.",
+    a: "fila de datos",
+    o: ["columna", "fila de datos", "clave", "celda"]
+},
+// Pregunta 15 (Basada en 7.e)
+{
+    q: "7.e. Un campo es una ________ de datos en una tabla.",
+    a: "columna",
+    o: ["fila", "columna", "registro", "base"]
+},
+// Pregunta 16
+{
+    q: "8. Las transacciones en SQL Server garantizan la durabilidad de los datos.",
+    a: "a) Verdadero",
+    o: ["a) Verdadero", "b) Falso"]
+},
+// Pregunta 17
+{
+    q: "9. El respaldo diferencial en SQL Server guarda todos los datos desde el inicio de la base de datos.",
+    a: "b) Falso",
+    o: ["a) Verdadero", "b) Falso"]
+},
+// Pregunta 18
+{
+    q: "10. La auditoría en bases de datos es irrelevante para el cumplimiento normativo.",
+    a: "b) Falso",
+    o: ["a) Verdadero", "b) Falso"]
+},
+// Pregunta 19
+{
+    q: "11. La administración reactiva en bases de datos busca anticiparse a problemas antes de que ocurran.",
+    a: "b) Falso",
+    o: ["a) Verdadero", "b) Falso"]
+},
+// Pregunta 20 (Repetida en el documento original)
+{
+    q: "12. La auditoría en bases de datos es irrelevante para el cumplimiento normativo.",
+    a: "b) Falso",
+    o: ["a) Verdadero", "b) Falso"]
+},
+// Pregunta 21
+{
+    q: "13. ¿Cuál de las siguientes características de las transacciones asegura que \"todo o nada\" se ejecute, es decir, que todas las operaciones de la transacción se completen o se reviertan completamente en caso de fallo?",
+    a: "d) Atomicidad",
+    o: ["a) Aislamiento", "b) Consistencia", "c) Durabilidad", "d) Atomicidad"]
+},
+// Pregunta 22
+{
+    q: "14. ¿Cuál de las siguientes opciones representa un respaldo completo?",
+    a: "c) BACKUP DATABASE TO DISK ... WITH FORMAT;",
+    o: ["a) BACKUP DATABASE TO DISK ... WITH DIFFERENTIAL;", "b) BACKUP LOG ... TO DISK ...;", "c) BACKUP DATABASE TO DISK ... WITH FORMAT;"]
+},
+// Pregunta 23
+{
+    q: "15. ¿Cuál de las siguientes opciones describe el ciclo de vida de una base de datos?",
+    a: "c) Planificación, análisis, diseño, implementación, mantenimiento, retiro",
+    o: ["a) Implementación, mantenimiento, retiro", "b) Diseño, análisis, ejecución", "c) Planificación, análisis, diseño, implementación, mantenimiento, retiro", "d) Análisis, diseño, ejecución, mantenimiento"]
+},
 
-    // --- SISTEMAS OPERATIVOS ---
-    { q: "Sistema de archivos por defecto Windows:", a: "NTFS", o: ["FAT32", "NTFS", "XFS"] },
-    { q: "Sistema de archivos por defecto Linux:", a: "Ext4", o: ["NTFS", "FAT32", "Ext4"] },
-    { q: "Un archivo ISO es:", a: "Imagen ISO", o: ["Ejecutable", "Imagen ISO", "NTFS"] },
-    { q: "Identificador de proceso:", a: "PID", o: ["Estado", "PID", "Memoria virtual"] },
-    { q: "Una API permite:", a: "Interacción entre aplicaciones y hardware", o: ["API GET", "Interacción entre aplicaciones y hardware", "Aplicación nativa"] },
-    { q: "Método HTTP para enviar/crear información:", a: "POST", o: ["GET", "POST", "PUT", "DELETE"] },
-    { q: "Método HTTP para actualizar información:", a: "PUT", o: ["PUT", "POST", "DELETE", "GET"] },
+// --- Página 3 ---
 
-    // --- HACKING ÉTICO ---
-    { q: "¿Qué es el hacking ético?", a: "La práctica de evaluar la seguridad de un sistema con permiso del propietario", o: ["Método para ataques", "La práctica de evaluar la seguridad de un sistema con permiso del propietario", "Manipulación datos"] },
-    { q: "Certificación reconocida para hackers éticos:", a: "CEH (Certified Ethical Hacker)", o: ["CCNA", "CEH (Certified Ethical Hacker)", "PMP", "ITIL"] },
-    { q: "Primer paso en auditoría seguridad:", a: "Recolección de información y reconocimiento", o: ["Explotación", "Recolección de información y reconocimiento", "Eliminación logs"] },
-    { q: "Herramienta para escaneo de puertos:", a: "Nmap", o: ["Nmap", "Wireshark", "Metasploit", "Hashcat"] },
-    { q: "Qué es un exploit:", a: "Un código o herramienta usada para aprovechar una vulnerabilidad", o: ["Ataque DoS", "Un código o herramienta usada para aprovechar una vulnerabilidad", "Antivirus"] },
-    { q: "Prueba de penetración sin conocer info interna:", a: "Prueba de caja negra", o: ["Prueba de caja blanca", "Prueba de caja negra", "Prueba de caja gris"] },
+// Pregunta 24
+{
+    q: "16. ¿Cuál de las siguientes opciones describe mejor cómo el principio de privilegio mínimo contribuye a la seguridad en la gestión de bases de datos?",
+    a: "a) Asigna a cada usuario solo los permisos estrictamente necesarios para realizar su trabajo, reduciendo el riesgo de accesos no autorizados.",
+    o: ["a) Asigna a cada usuario solo los permisos estrictamente necesarios para realizar su trabajo, reduciendo el riesgo de accesos no autorizados.", "b) Concede permisos elevados a todos los usuarios para evitar bloqueos en la operación del sistema.", "c) Permite que cualquier usuario aceda a todas las tablas de la base de datos sin restricciones.", "d) Requiere que los administradores otorguen privilegios máximos por defecto y luego los reduzcan manualmente."]
+},
+// Pregunta 25
+{
+    q: "17. ¿Qué modo de autenticación proporciona una integración más sencilla con las políticas de seguridad del sistema operativo y no requiere la gestión de contraseñas adicionales?",
+    a: "a) Autenticación de Windows",
+    o: ["a) Autenticación de Windows", "b) Autenticación de SQL Server"]
+},
+// Pregunta 26
+{
+    q: "18. De este código, ¿cuál es una afirmación correcta?\n\n-- Crear el usuario en la base de datos\nCREATE USER UsuarioLectura FOR LOGIN UsuarioLectura;\n\n-- Otorgar permisos de solo lectura sobre la tabla Ventas\nGRANT SELECT ON dbo.Ventas TO UsuarioLectura;",
+    a: "b) El código crea un usuario en la base de datos y le otorga permisos de lectura en la tabla Ventas.",
+    o: ["a) El código crea un usuario en la base de datos y le otorga permisos de escritura en la tabla Ventas.", "b) El código crea un usuario en la base de datos y le otorga permisos de lectura en la tabla Ventas.", "c) El código crea un usuario en la base de datos y le otorga permisos de eliminación en la tabla Ventas.", "d) El código crea un usuario en la base de datos y le otorga permisos de modificación en la tabla Ventas."]
+},
+// Pregunta 27
+{
+    q: "19. ¿Por qué es importante realizar auditorías periódicas en los roles y permisos de un sistema de bases de datos?",
+    a: "a) Para garantizar que solo los usuarios autorizados tengan acceso a información sensible.",
+    o: ["a) Para garantizar que solo los usuarios autorizados tengan acceso a información sensible.", "b) Para aumentar el tamaño de la base de datos.", "c) Para hacer que los usuarios puedan compartir más fácilmente sus contraseñas."]
+},
+// Pregunta 28
+{
+    q: "20. Clasifica los siguientes conceptos según corresponda:\n1. sysadmin | a) Permite realizar tareas administrativas (configuración/apagado).\n2. serveradmin | b) Control total sobre el servidor SQL (igual que sa).\n3. dbcreator | c) Permite crear, modificar y eliminar bases de datos.",
+    a: "1b, 2a, 3c",
+    o: ["1a, 2b, 3c", "1b, 2a, 3c", "1c, 2b, 3a", "1b, 2c, 3a"]
+},
 
-    // --- GESTIÓN (ITEM 200) ---
-    { q: "Las estrategias deben definirse para todos los niveles de la organización (V/F):", a: "V", o: ["V", "F"] },
-    { q: "Las estrategias competitivas no nos definen cómo competirá la empresa (V/F):", a: "F", o: ["V", "F"] },
-    { q: "El análisis FODA resume fortalezas, oportunidades, debilidades y amenazas (V/F):", a: "V", o: ["V", "F"] },
-    { q: "La estructura organizacional es el armazón o esqueleto de una organización (V/F):", a: "V", o: ["V", "F"] },
-    { q: "EL organigrama incluye normas de funcionamiento y descripciones de puestos (V/F):", a: "F", o: ["V", "F"] }
-];
+// --- Página 4 ---
 
-/* --------------------------------------------------------- */
-/* LÓGICA DEL MOTOR (SHUFFLE / QUIZ / RENDER)                */
-/* --------------------------------------------------------- */
+// Pregunta 29
+{
+    q: "21. De acuerdo con el siguiente código SQL, ¿qué tipo de trigger se debe usar?\n\nCREATE TRIGGER trg_AuditoriaClientes\nON Clientes\nAFTER INSERT\nAS\nBEGIN\nINSERT INTO AuditoriaClientes (ClienteID, Operacion, Fecha)\nSELECT ClienteID, 'Inserción', GETDATE()\nFROM inserted;\nEND;",
+    a: "b) AFTER INSERT",
+    o: ["a) BEFORE INSERT", "b) AFTER INSERT", "c) INSTEAD OF INSERT", "d) DELETE TRIGGER"]
+},
+// Pregunta 30
+{
+    q: "22. El siguiente código SQL corresponde a un ejemplo de transacciones. ¿Cuál es la instrucción correcta que falta en los espacios en blanco?\n\nSET XACT_ABORT ON;\n______________________;\nBEGIN TRY\nINSERT INTO Cliente (Nombre, Email) VALUES ('Juan Pérez', 'juan@example.com');\n____________________\nEND TRY\nBEGIN CATCH\n______________________;\nTHROW;\nEND CATCH;",
+    a: "a) Begin Transaction, Commit Transaction, Rollback Transaction",
+    o: ["a) Begin Transaction, Commit Transaction, Rollback Transaction", "b) Start Transaction, Commit Transaction, End Transaction", "c) Transaction, Exec Transaction, End Transaction", "d) Open Transaction, Push Transaction, Close Transaction"]
+},
+// Pregunta 31
+{
+    q: "23. Definición de Algoritmo:",
+    a: "b. Conjunto de ordenes secuenciales y jerárquicas",
+    o: ["a. Inicio, Proceso y Fin", "b. Conjunto de ordenes secuenciales y jerárquicas", "c. Entrada, Proceso y salida"]
+},
+// Pregunta 32
+{
+    q: "24. Relación Algoritmo y Programa:",
+    a: "c. Programa implementa un algoritmo",
+    o: ["a. Son lo mismo", "b. Algoritmo implementa un programa", "c. Programa implementa un algoritmo"]
+},
+// Pregunta 33
+{
+    q: "25. Alternativas para representar algoritmo:",
+    a: "b. Pseudocódigo y diagramas de flujo",
+    o: ["a. Cuadros y rombos", "b. Pseudocódigo y diagramas de flujo", "c. Lenguaje de programación"]
+},
+// Pregunta 34
+{
+    q: "26. Pseudocódigo:",
+    a: "b. Se expresa en leguaje natural",
+    o: ["a. Utiliza comandos de programación", "b. Se expresa en leguaje natural", "c. Los comandos de un lenguaje"]
+},
 
-let currentQuestions = [];
-let currentIdx = 0;
-let score = 0;
-let fails = [];
-let isFlashMode = false;
-let flashCurrentCorrect = false;
+// --- Página 5 ---
 
-function shuffleArray(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
+// Pregunta 35
+{
+    q: "27. Característica de un algoritmo:",
+    a: "c. Es finito, preciso y definido",
+    o: ["a. No tiene fin", "b. No contempla un orden", "c. Es finito, preciso y definido"]
+},
+// Pregunta 36
+{
+    q: "28. Pseudocódigo:",
+    a: "b. Se expresa en leguaje natural",
+    o: ["a. Utiliza comandos de programación", "b. Se expresa en leguaje natural", "c. Los comandos de un lenguaje"]
+},
+// Pregunta 37
+{
+    q: "29. Partes del algoritmo:",
+    a: "c. Inicio, proceso y salida",
+    o: ["a. Inicio, proceso y fin", "b. Variables y constantes", "c. Inicio, proceso y salida"]
+},
+// Pregunta 38
+{
+    q: "30. Cual se los siguiente ejemplos no es un algoritmo:",
+    a: "a. El mar",
+    o: ["a. El mar", "b. Ir al cine", "c. Sumar dos números"]
+},
+// Pregunta 39
+{
+    q: "31. Dispositivos de entradas:",
+    a: "b. Mouse, teclado y micrófono",
+    o: ["a. Mouse, teclado y monitor", "b. Mouse, teclado y micrófono", "c. Mouse, teclado e impresora"]
+},
+// Pregunta 40
+{
+    q: "32. Dispositivos de salida:",
+    a: "c. Mouse, monitor e impresora",
+    o: ["a. Parlantes, teclado y monitor", "b. Parlantes, teclado y micrófono", "c. Mouse, monitor e impresora"]
+},
+// Pregunta 41
+{
+    q: "33. Resultado (1 OR 1) :",
+    a: "a. 1",
+    o: ["a. 1", "b. 0", "c. Ninguno de los anteriores"]
+},
+// Pregunta 42
+{
+    q: "34. Resultado (1 AND 0) :",
+    a: "b. 0",
+    o: ["a. 1", "b. 0", "c. Ninguno de los anteriores"]
+},
+// Pregunta 43
+{
+    q: "35. Definición de variable :",
+    a: "a. Elemento de dato que permite almacenar de forma temporal un valor",
+    o: ["a. Elemento de dato que permite almacenar de forma temporal un valor", "b. Elemento de dato que permite almacenar de forma permanente un valor", "c. No se identifica con un nombre."]
+},
+// Pregunta 44
+{
+    q: "36. Definición de constante:",
+    a: "e. Elemento de dato que permite almacenar de forma permanente un valor",
+    o: ["d. Elemento de dato que permite almacenar de forma temporal un valor", "e. Elemento de dato que permite almacenar de forma permanente un valor", "f. No se identifica con un nombre"]
+},
+// Pregunta 45
+{
+    q: "37. Definición de Seguridad de Aplicaciones:",
+    a: "Son Metodologías, estándares, herramientas o técnicas",
+    o: ["Son los permisos de las aplicaciones de los Smartphone", "Elemento que permite almacenar de forma permanente un valor", "Son Metodologías, estándares, herramientas o técnicas"]
+},
+// Pregunta 46
+{
+    q: "38. Vulnerabilidades en las aplicaciones:",
+    a: "Todas las aplicaciones pueden tener vulnerabilidades",
+    o: ["Existe aplicaciones que no tienen vulnerabilidades", "Todas las aplicaciones pueden tener vulnerabilidades", "No hay vulnerabilidades en las aplicaciones"]
+},
+
+// --- Página 6 ---
+
+// Pregunta 47
+{
+    q: "39. Seguridad informática:",
+    a: "Disciplina que se ocupa de diseñar las normas, procedimientos, métodos y técnicas",
+    o: ["Disciplina que se ocupa de diseñar las normas, procedimientos, métodos y técnicas", "Tener un password difícil de adivinar", "Forma correcta de guardar los equipos informáticos"]
+},
+// Pregunta 48
+{
+    q: "40. Seguridad de la Información:",
+    a: "Medidas y actividades que procuran proteger los activos de información",
+    o: ["Cuidados de activos y pasivos de información", "Medidas y actividades que procuran proteger los activos de información", "Cuidado de los datos personales"]
+},
+// Pregunta 49
+{
+    q: "41. Componentes de la Triada de la Seguridad de la información:",
+    a: "Integridad, Confidencialidad y Disponibilidad",
+    o: ["Hardware, Software y Redes", "Amenazas, Riesgos y Vulnerabilidades", "Integridad, Confidencialidad y Disponibilidad"]
+},
+// Pregunta 50
+{
+    q: "42. Componentes de la seguridad de aplicaciones:",
+    a: "Hardware, Software y Procedimientos",
+    o: ["Hardware, Software y Procedimientos", "Amenazas, Riesgos y Vulnerabilidades", "Integridad, Confidencialidad y Disponibilidad"]
+},
+// Pregunta 51
+{
+    q: "43. Objetivo de la seguridad de aplicaciones:",
+    a: "Garantizar el correcto funcionamiento de las aplicaciones y su entorno",
+    o: ["Respaldo de información de las aplicaciones", "Garantizar el correcto funcionamiento de las aplicaciones y su entorno", "Base de datos en correcto funcionamiento"]
+},
+// Pregunta 52
+{
+    q: "44. Tipos de Seguridad de aplicaciones:",
+    a: "Seguridad de cloud, móviles y web",
+    o: ["Android, IOS y Harmony", "Seguridad de cloud, móviles y web", "Pública, privada e hibrida"]
+},
+// Pregunta 53
+{
+    q: "45. OWASP:",
+    a: "Organización de voluntarios sin fines de lucro",
+    o: ["Libros sobre seguridad de aplicaciones", "Organización de voluntarios sin fines de lucro", "Un virus informático"]
+},
+// Pregunta 54
+{
+    q: "46. Recursos de OWASP:",
+    a: "Publicaciones, software y capítulos locales",
+    o: ["Equipos de conectividad", "Programas antivirus", "Publicaciones, software y capítulos locales"]
+},
+// Pregunta 55
+{
+    q: "47. Ciclo de vida del software:",
+    a: "Define las fases intermedias para desarrollar una aplicación",
+    o: ["Indica hasta cuándo se puede usar un software", "Define las fases intermedias para desarrollar una aplicación", "Documento que registra la creación de un software"]
+},
+// Pregunta 56
+{
+    q: "48. Protección de virus:",
+    a: "Antivirus, cortafuegos y sentido común",
+    o: ["Formatear los discos duros del equipo", "No enviar correos electrónicos", "Antivirus, cortafuegos y sentido común"]
+},
+// Pregunta 57
+{
+    q: "49. La Inyección SQL es:",
+    a: "Un ciberataque",
+    o: ["Un virus informático", "Un ciberataque", "Un error de una base de datos"]
+},
+// Pregunta 58
+{
+    q: "50. Inyección SQL es un método de infiltración de código intruso que se vale de una vulnerabilidad informática",
+    a: "Verdadero",
+    o: ["Verdadero", "Falso"]
+},
+// Pregunta 59
+{
+    q: "51. Concepto de Red:",
+    a: "b. Conjunto dispositivos conectados que comparten recursos",
+    o: ["a. Computadores en una área común", "b. Conjunto dispositivos conectados que comparten recursos", "c.Las páginas web de internet"]
+},
+
+// --- Página 7 ---
+
+// Pregunta 60
+{
+    q: "52. La razón de existir una red es:",
+    a: "b. Compartir y acceder a recursos",
+    o: ["a. Navegar en internet", "b. Compartir y acceder a recursos", "c.Programación Web"]
+},
+// Pregunta 61
+{
+    q: "53. La topología de red es la ________ en la que está distribuida una ________",
+    a: "forma, red",
+    o: ["forma, red", "manera, base", "estructura, computadora", "lógica, señal"]
+},
+// Pregunta 62
+{
+    q: "54. Los principales tipos de Topología:",
+    a: "c.Anillo, Estrella y Bus",
+    o: ["a. FTP, TCP y UTP", "b. Compartir y acceder a recursos", "c.Anillo, Estrella y Bus"]
+},
+// Pregunta 63
+{
+    q: "55. En la topología en Anillo, los dispositivos están distribuidos de forma:",
+    a: "c. En forma circular",
+    o: ["a. Secuencialmente", "b. Unidos una a uno", "c. En forma circular"]
+},
+// Pregunta 64
+{
+    q: "56. En la topología en Bus, los dispositivos están distribuidos de forma:",
+    a: "a. Conectados a un solo cable",
+    o: ["a. Conectados a un solo cable", "b. Unidos una a uno", "c. En forma circular"]
+},
+// Pregunta 65
+{
+    q: "57. En la topología en Estrella, los dispositivos están distribuidos de forma:",
+    a: "b. Conectados a un punto central",
+    o: ["a. Conectados a un solo cable", "b. Conectados a un punto central", "c. En forma circular"]
+},
+// Pregunta 66
+{
+    q: "58. En la topología Malla, los dispositivos están distribuidos de forma:",
+    a: "a. Conectados a entre si",
+    o: ["a. Conectados a entre si", "b. Unidos a un cable", "c. En forma circular"]
+},
+// Pregunta 67
+{
+    q: "59. La topología más antigua:",
+    a: "c. Bus",
+    o: ["a. Hibrida", "b. Malla", "c. Bus"]
+},
+// Pregunta 68
+{
+    q: "60. La topología más utilizada:",
+    a: "c. Bus",
+    o: ["a. Estrella", "b. Malla", "c. Bus"]
+},
+// Pregunta 69
+{
+    q: "61. Indique las capas de los modelos OSI:",
+    a: "Física, enlace, red, transporte, sesión, presentación, aplicación.",
+    o: ["Física, enlace, red, transporte, sesión, presentación, aplicación.", "Acceso, Internet, Transporte, Aplicación.", "Física, Datos, Red, Sesión, Aplicación.", "Hardware, Software, Red, Usuario."]
+},
+// Pregunta 70
+{
+    q: "62. Modelo jerárquico de redes:",
+    a: "c. OSI Y TCP/IP",
+    o: ["a. TCP y UDP", "b. FTP y HTTP", "c. OSI Y TCP/IP"]
+},
+// Pregunta 71
+{
+    q: "63. En la capa enlace de datos se transmite:",
+    a: "c. Frames o marcos",
+    o: ["a. Paquetes", "b. Bits", "c. Frames o marcos"]
+},
+// Pregunta 72
+{
+    q: "64. En la capa de red se transmite:",
+    a: "a. Paquetes",
+    o: ["a. Paquetes", "b. Bits", "c. Frames o marcos"]
+},
+// Pregunta 73
+{
+    q: "65. Telecomunicaciones: trasmisión a ________ de datos de información a través de medios ________",
+    a: "distancia, electrónicos",
+    o: ["distancia, electrónicos", "cercanía, lógicos", "señal, físicos", "aire, digitales"]
+},
+// Pregunta 74
+{
+    q: "66. Concepto de Red:",
+    a: "b. Conjunto dispositivos conectados que comparten recursos",
+    o: ["a. Computadores en una área común", "b. Conjunto dispositivos conectados que comparten recursos", "c. Las páginas web de internet"]
+},
+
+// --- Página 8 ---
+
+// Pregunta 75 (Repetida 67)
+{
+    q: "67. La razón de existir una red es:",
+    a: "b. Compartir y acceder a recursos",
+    o: ["a. Navegar en internet", "b. Compartir y acceder a recursos", "c. Programación Web"]
+},
+// Pregunta 76
+{
+    q: "68. Tipos de redes según la zona:",
+    a: "c. LAN, MAN y WAN",
+    o: ["a. Internet, antenas y fibra", "b. Satelital, Digital y Par trenzado", "c. LAN, MAN y WAN"]
+},
+// Pregunta 77
+{
+    q: "69. Tipos de redes según el medio de transmisión utilizado:",
+    a: "b. Redes con Cables y Redes inalámbricas",
+    o: ["a. Internet, antenas y fibra", "b. Redes con Cables y Redes inalámbricas", "c. LAN, MAN y WAN"]
+},
+// Pregunta 78
+{
+    q: "70. Tipos de cables:",
+    a: "b. Par trenzado, coaxial y fibra óptica",
+    o: ["a. Internet, antenas y fibra", "b. Par trenzado, coaxial y fibra óptica", "c. LAN, MAN y WAN"]
+},
+// Pregunta 79
+{
+    q: "71. Un proyecto es un ________ temporal que en forma gradual permite lograr un ________ único.",
+    a: "esfuerzo, resultado",
+    o: ["esfuerzo, resultado", "trabajo, objeto", "proceso, dato", "plan, sistema"]
+},
+// Pregunta 80
+{
+    q: "72. El Firewall de Hardware es más económico que el Firewall se Software",
+    a: "Falso",
+    o: ["Verdadero", "Falso"]
+},
+// Pregunta 81
+{
+    q: "73. Un firewall funciona como una barrera entre internet u otras redes públicas y nuestra computadora",
+    a: "Verdadero",
+    o: ["Verdadero", "Falso"]
+},
+// Pregunta 82
+{
+    q: "74. Los tipos de firewall son, firewall de ________ y Firewall de ________",
+    a: "Hardware, Software",
+    o: ["Hardware, Software", "Red, Computadora", "Físico, Lógico", "Externo, Interno"]
+},
+// Pregunta 83
+{
+    q: "75. ICT es:",
+    a: "b. Infraestructura común de telecomunicaciones",
+    o: ["a. Instituto de comunicación de telecomunicaciones", "b. Infraestructura común de telecomunicaciones", "c. Instrumento de comunicación telefónica"]
+},
+// Pregunta 84
+{
+    q: "76. El área de captación del ICT se refiere :",
+    a: "c. Sector donde están las antenas",
+    o: ["a. Lugar donde llega la fibra óptica", "b. Donde se capta el internet", "c. Sector donde están las antenas"]
+},
+// Pregunta 85
+{
+    q: "77. El Dipolo es :",
+    a: "d. En si una antena",
+    o: ["d. En si una antena", "e. Parte de la antena", "f. Separador de señal"]
+},
+// Pregunta 86
+{
+    q: "78. Medio de transmisión más caro:",
+    a: "i. Fibra óptica",
+    o: ["g. Par trenzado", "h. Cable coaxial", "i. Fibra óptica"]
+},
+// Pregunta 87
+{
+    q: "79. Medio de transmisión de mayor velocidad:",
+    a: "l. Fibra óptica",
+    o: ["j. Par trenzado", "k. Cable coaxial", "l. Fibra óptica"]
+},
+
+// --- Página 9 ---
+
+// Pregunta 88
+{
+    q: "80. ¿Qué representa un riesgo en términos de gestión de la seguridad de la información?",
+    a: "c) La posibilidad de que una amenaza explote una vulnerabilidad",
+    o: ["a) Una probabilidad baja de que ocurra un evento", "b) Una acción que incrementa la seguridad", "c) La posibilidad de que una amenaza explote una vulnerabilidad"]
+},
+// Pregunta 89
+{
+    q: "81. ¿Cuál de las siguientes es una definición correcta de \"amenaza\"?",
+    a: "c) Una causa potencial de un incidente no deseado",
+    o: ["a) Una política que protege la información", "b) Una debilidad en el sistema", "c) Una causa potencial de un incidente no deseado"]
+},
+// Pregunta 90
+{
+    q: "82. ¿Qué describe mejor una vulnerabilidad?",
+    a: "b) Una debilidad que puede ser explotada",
+    o: ["a) Una fortaleza en el sistema", "b) Una debilidad que puede ser explotada", "c) Una amenaza detectada"]
+},
+// Pregunta 91
+{
+    q: "83. ¿Qué es el riesgo residual?",
+    a: "b) El riesgo que queda después de tratar el riesgo",
+    o: ["a) El riesgo antes de aplicar controles", "b) El riesgo que queda después de tratar el riesgo", "c) El riesgo involucrado en la valoración inicial"]
+},
+// Pregunta 92
+{
+    q: "84. ¿Cuál de los siguientes es un ejemplo de \"riesgo inherente\"?",
+    a: "c) Riesgo existente sin ejecución de controles",
+    o: ["a) Riesgo eliminado por completo", "b) Riesgo introducido por una nueva amenaza", "c) Riesgo existente sin ejecución de controles", "d) Riesgo mitigado por políticas"]
+},
+// Pregunta 93
+{
+    q: "85. Las opciones disponibles para el tratamiento del riesgo son:",
+    a: "c) Mitigar, aceptar, transferir y evitar",
+    o: ["a) Eliminar o disminuir el impacto", "b) Mitigar y aceptar", "c) Mitigar, aceptar, transferir y evitar"]
+},
+// Pregunta 94
+{
+    q: "86. ¿Cuál es el primer paso en el proceso de gestión del riesgo?",
+    a: "b) Establecimiento del contexto",
+    o: ["a) Evaluación del riesgo", "b) Establecimiento del contexto", "c) Implementación de controles", "d) Monitoreo y revisión del riesgo"]
+},
+// Pregunta 95
+{
+    q: "87. ¿Qué implica \"comunicación del riesgo\" en la gestión de la seguridad de la información?",
+    a: "c) Comunicar los riesgos identificados a las partes interesadas",
+    o: ["a) Informar sobre los riesgos residuales", "b) Discutir los resultados de la evaluación del riesgo", "c) Comunicar los riesgos identificados a las partes interesadas", "d) Establecer comunicación entre dispositivos de red"]
+},
+// Pregunta 96
+{
+    q: "88. El cálculo de nivel de riesgo se realiza mediante:",
+    a: "b) (C+D+I)/3",
+    o: ["a) VA(CDI) * Nivel de amenaza * Nivel de vulnerabilidad", "b) (C+D+I)/3", "c) (C*D*I)/3"]
+},
+// Pregunta 97
+{
+    q: "89. ¿Cuál de los siguientes describe mejor \"valoración del riesgo\"?",
+    a: "c) Medir la probabilidad y consecuencias de los riesgos",
+    o: ["a) Determinar la eficacia de los controles", "b) Identificar activos primarios y de soporte", "c) Medir la probabilidad y consecuencias de los riesgos", "d) Evaluar políticas de seguridad existentes"]
+},
+
+// --- Página 10 ---
+
+// Pregunta 98
+{
+    q: "90. Los sistemas operativos móviles no requieren configuraciones de seguridad.",
+    a: "Falso",
+    o: ["Verdadero", "Falso"]
+},
+// Pregunta 99
+{
+    q: "91. El principio de privilegios mínimos asegura que los usuarios solo tengan acceso a lo estrictamente necesario.",
+    a: "Verdadero",
+    o: ["Verdadero", "Falso"]
+},
+// Pregunta 100
+{
+    q: "92. Las herramientas de escaneo de vulnerabilidades como Nmap, Nessus ayudan a detectar y mitigar amenazas en redes y sistemas.",
+    a: "Verdadero",
+    o: ["Verdadero", "Falso"]
+},
+// Pregunta 101
+{
+    q: "93. Un ataque de DDoS (Denegación de Servicio Distribuida) intenta adivinar contraseñas hasta encontrar la correcta.",
+    a: "Falso",
+    o: ["Verdadero", "Falso"]
+},
+// Pregunta 102
+{
+    q: "94. La confidencialidad garantiza que la información sea accesible solo para personas autorizadas, protegiendo los datos sensibles de accesos no permitidos.",
+    a: "Verdadero",
+    o: ["Verdadero", "Falso"]
+},
+// Pregunta 103
+{
+    q: "95. ¿Cuál de los siguientes es un ejemplo de software malicioso o malware?",
+    a: "a. Ransomware",
+    o: ["a. Ransomware", "b. Antivirus", "c. Spyware", "d. Cortafuegos (Firewall)"]
+},
+// Pregunta 104
+{
+    q: "96. Seleccione el concepto que no corresponde a los principios fundamentales de la ciberseguridad",
+    a: "a. Autenticidad",
+    o: ["a. Autenticidad", "b. Confidencialidad", "c. Integridad", "d. Disponibilidad"]
+},
+// Pregunta 105
+{
+    q: "97. ¿Cuál de las siguientes es una herramienta para escaneo de vulnerabilidades?",
+    a: "a. Nessus",
+    o: ["a. Nessus", "b. Nmapa", "c. Kalli", "d. Lubuntu"]
+},
+// Pregunta 106
+{
+    q: "98. ¿Cuál de los siguientes pasos suelen seguir los ciberdelincuentes para ejecutar un ataque de Phishing?",
+    a: "a. El atacante se hace pasar por una entidad legítima, como una institución bancaria o un servicio en línea, y envía un correo electrónico o mensaje que solicita información confidencial, como contraseñas o datos personales.",
+    o: ["a. El atacante se hace pasar por una entidad legítima, como una institución bancaria o un servicio en línea, y envía un correo electrónico o mensaje que solicita información confidencial, como contraseñas o datos personales.", "b. El atacante utiliza herramientas de fuerza bruta para adivinar contraseñas y acceder a cuentas en línea.", "c. El atacante intercepta la comunicación entre dos partes sin que lo sepan, utilizando técnicas de Man-in-the-Middle (MITM)."]
+},
+
+// --- Página 11 ---
+
+// Pregunta 107
+{
+    q: "99. ¿Cuál de las siguientes opciones describe correctamente cómo se aplica el principio de Integridad en el diseño de una estrategia de seguridad de red?",
+    a: "d) La Integridad garantiza que los datos no sean modificados sin autorización y asegura que la información sea precisa y confiable en todo momento.",
+    o: ["a) La Integridad asegura que los datos estén siempre disponibles, independientemente de los problemas de la red.", "b) La Integridad solo se refiere al control de acceso a los datos, permitiendo que solo los usuarios autorizados puedan ver la información.", "c) La Integridad implica la creación de copias de seguridad frecuentes para evitar la pérdida de datos.", "d) La Integridad garantiza que los datos no sean modificados sin autorización y asegura que la información sea precisa y confiable en todo momento."]
+},
+// Pregunta 108
+{
+    q: "100. Imagina que recibes un correo electrónico que parece ser de tu banco, pidiéndote que hagas clic en un enlace para verificar tu cuenta. El enlace te lleva a una página que solicita tu nombre de usuario y contraseña. ¿Qué debes hacer?",
+    a: "c. Marcar el correo como sospechoso y contactar directamente a tu banco usando los canales oficiales.",
+    o: ["a. Hacer clic en el enlace y llenar los datos solicitados, ya que el correo parece ser legítimo.", "b. Verificar que el dominio del enlace sea legítimo antes de hacer clic.", "c. Marcar el correo como sospechoso y contactar directamente a tu banco usando los canales oficiales.", "d. Responder al correo para confirmar que lo recibiste correctamente."]
+},
+// Pregunta 109
+{
+    q: "101. ¿Cuál es la diferencia principal entre el cifrado simétrico y el cifrado asimétrico?",
+    a: "a) Para garantizar que solo los usuarios autorizados tengan acceso a información sensible.",
+    o: ["a) Para garantizar que solo los usuarios autorizados tengan acceso a información sensible.", "b) Para aumentar el tamaño de la base de datos.", "c) Para hacer que los usuarios puedan compartir más fácilmente sus contraseñas."]
+},
+// Pregunta 110
+{
+    q: "102. Clasifica los siguientes conceptos según sean de Amenazas y Principios de Seguridad:\n1.Malware (a. Amenazas)\n2.Confidencialidad (b. Principios de Seguridad)\n3.Autorización\n4.Acceso no autorizado",
+    a: "1a, 2b, 3b, 4a",
+    o: ["1a, 2b, 3a, 4b", "1a, 2b, 3b, 4a", "1b, 2a, 3a, 4b", "1b, 2a, 3b, 4a"]
+},
+
+// --- Página 12 ---
+
+// Pregunta 111
+{
+    q: "103. Asocia cada tipo de ataque con su descripción:\n1.- Intentos repetidos de adivinar una contraseña.\n2.- Técnica en la que el atacante se hace pasar por una entidad legítima para robar información.\n3.- Interceptar la comunicación entre dos partes sin que lo sepan",
+    a: "1a, 3b, 2c",
+    o: ["1a, 2b, 3c", "1b, 3a, 2c", "1a, 3b, 2c", "1c, 2b, 3a"]
+},
+// Pregunta 112
+{
+    q: "104. Clasifica los siguientes elementos como una medida de Protección, una Amenaza o un Principio de Seguridad:\n1. Spyware\n2. Firewall\n3. Confidencialidad",
+    a: "1b, 2a, 3c",
+    o: ["1a, 2b, 3c", "1b, 2a, 3c", "1c, 2b, 3a", "1b, 2c, 3a"]
+},
+// Pregunta 113
+{
+    q: "105. La Ciberinteligencia solo se enfoca en identificar amenazas, sin analizar oportunidades en el ciberespacio.",
+    a: "b. Falso",
+    o: ["a. Verdadero", "b. Falso"]
+},
+// Pregunta 114
+{
+    q: "106. OSINT permite recopilar información de fuentes accesibles al público, como redes sociales y medios de comunicación.",
+    a: "a. Verdadero",
+    o: ["a. Verdadero", "b. Falso"]
+},
+// Pregunta 115
+{
+    q: "107. Las técnicas de OSINT requieren generalmente de métodos invasivos para obtener información.",
+    a: "b. Falso",
+    o: ["a. Verdadero", "b. Falso"]
+},
+// Pregunta 116
+{
+    q: "108. Un ataque de spear phishing está dirigido a un público amplio, sin personalización del mensaje.",
+    a: "b. Falso",
+    o: ["a. Verdadero", "b. Falso"]
+},
+// Pregunta 117
+{
+    q: "109. Los tokens CSRF son una técnica común para prevenir ataques CSRF.",
+    a: "a. Verdadero",
+    o: ["a. Verdadero", "b. Falso"]
+},
+// Pregunta 118 (Pregunta abierta/título en la imagen)
+{
+    q: "110. ¿Qué estrategias ayudan a mitigar ataques CSRF?",
+    a: "Utilizar tokens CSRF (Ver siguiente página para opciones)",
+    o: ["Utilizar tokens CSRF", "No hay opciones en esta página", "Continuar estudio"]
+},
+
+// --- Página 13 ---
+
+// Pregunta 119 (Continuación de la 110 de la página anterior)
+{
+    q: "110. ¿Qué estrategias ayudan a mitigar ataques CSRF?",
+    a: "a. Utilizar tokens CSRF",
+    o: ["a. Utilizar tokens CSRF", "b. Configurar cookies con SameSite=Lax o Strict", "c. Desactivar cookies de sesión", "d. Validar encabezados Referer y Origin en solicitudes sensibles"]
+},
+// Pregunta 120
+{
+    q: "111. De los siguientes ¿Cuál no es un pilar fundamental de la ciberinteligencia?",
+    a: "d. Recopilación",
+    o: ["a. Confidencialidad", "b. Integridad", "c. Disponibilidad", "d. Recopilación"]
+},
+// Pregunta 121
+{
+    q: "112. ¿Qué tipo de phishing implica el uso de llamadas telefónicas para engañar a la víctima?",
+    a: "c. Vishing",
+    o: ["a. Spear phishing", "b. Smishing", "c. Vishing", "d. Pharming"]
+},
+// Pregunta 122
+{
+    q: "113. ¿Qué elementos no se consideran en la verificación de una fuente confiable en OSINT?",
+    a: "c. Popularidad en redes sociales.",
+    o: ["a. Reputación de la fuente.", "b. Evaluación del sesgo.", "c. Popularidad en redes sociales.", "d. Actualización de la información."]
+},
+// Pregunta 123
+{
+    q: "114. ¿Cuáles son las ventajas y desafíos del uso de fuentes abiertas (OSINT) en la recopilación de información?",
+    a: "d) Las fuentes abiertas ofrecen información valiosa de manera rápida y económica, pero pueden ser vulnerables a la desinformación. Ejemplo: análisis de artículos de noticias y foros públicos.",
+    o: ["a) Las fuentes abiertas permiten obtener información confiable y verificable sin costos, pero a menudo son limitadas en detalle. Ejemplo: análisis de publicaciones en redes sociales.", "b) El uso de fuentes abiertas no presenta desafíos, ya que toda la información es completamente precisa. Ejemplo: lectura de blogs especializados.", "c) Las fuentes abiertas son ineficaces para recopilar información relevante, ya que la mayoría de los datos son confidenciales. Ejemplo: acceso a bases de datos privadas.", "d) Las fuentes abiertas ofrecen información valiosa de manera rápida y económica, pero pueden ser vulnerables a la desinformación. Ejemplo: análisis de artículos de noticias y foros públicos."]
+},
+// Pregunta 124
+{
+    q: "115. ¿Cuál es la importancia de la ciberinteligencia para una organización en el contexto actual de seguridad digital y cómo puede ayudar a anticiparse a amenazas?",
+    a: "b) La ciberinteligencia permite identificar y neutralizar amenazas antes de que ocurran mediante el análisis de datos en tiempo real.",
+    o: ["a) La ciberinteligencia es irrelevante para la seguridad digital, ya que solo se enfoca en recopilar información sobre los empleados", "b) La ciberinteligencia permite identificar y neutralizar amenazas antes de que ocurran mediante el análisis de datos en tiempo real.", "c) La ciberinteligencia ayuda a crear estrategias de marketing digital y no está relacionada con la seguridad.", "d) La ciberinteligencia no tiene impacto en la prevención de ciberataques, sino que solo es útil para responder a incidentes."]
+},
+
+// --- Página 14 ---
+
+// Pregunta 125
+{
+    q: "116. ¿Cuáles son los pasos típicos que sigue un ciberdelincuente para ejecutar un ataque de phishing?",
+    a: "a) Identificación del objetivo, creación de un correo electrónico falso, envío masivo de correos, redirección al sitio web falso, robo de credenciales.",
+    o: ["a) Identificación del objetivo, creación de un correo electrónico falso, envío masivo de correos, redirección al sitio web falso, robo de credenciales.", "b) Envío de un mensaje de texto, seguimiento de enlaces en redes sociales, obtención de información personal, explotación de vulnerabilidades.", "c) Recopilación de información personal, creación de un sitio web legítimo, envío de enlaces a víctimas, ejecución de scripts maliciosos.", "d) Reconocimiento de vulnerabilidades, ataque directo al servidor, interceptación de comunicaciones, instalación de malware."]
+},
+// Pregunta 126
+{
+    q: "117. Clasifica los siguientes conceptos según corresponda:\n1. VM Escape | a) Ciberseguridad\n2. Weighted Round Robin | b) Balanceo de Carga\n3. Firewalls físicos | c) Seguridad en la Nube",
+    a: "1c, 2b, 3a",
+    o: ["1a, 2b, 3c", "1c, 2b, 3a", "1b, 2a, 3c", "1c, 2a, 3b"]
+},
+// Pregunta 127
+{
+    q: "118. Clasifica los siguientes conceptos según corresponda:\n1. Monitoreo de palabras clave | a) OSINT\n2. Análisis de sentimientos | b) SOCMINT\n3. Verificación cruzada\n4. Evaluación de sesgo",
+    a: "1a, 2b, 3a, 4b",
+    o: ["1a, 2b, 3a, 4b", "1b, 2a, 3b, 4a", "1a, 2a, 3b, 4b", "1b, 2b, 3a, 4a"]
+},
+// Pregunta 128
+{
+    q: "119. Relaciona el tipo de Phishing con su descripción:\n1. Ataque dirigido a una persona específica.\n2. Ataque masivo a gran número de personas.\n3. Phishing a través de llamadas telefónicas.\n4. Phishing mediante mensajes SMS.",
+    a: "1a, 2d, 3c, 4b",
+    o: ["1a, 2b, 3c, 4d", "1a, 2d, 3c, 4b", "1c, 2a, 3d, 4b", "1d, 2c, 3b, 4a"]
+},
+// Pregunta 129
+{
+    q: "120. Seleccione los elementos de la ciudadanía digital (Selección Múltiple):",
+    a: "a, b, d, e",
+    o: ["a, b, c, d", "a, b, d, e", "b, c, e, f", "a, d, e, f"]
+},
+
+// --- Página 15 ---
+
+// Pregunta 130 (Literal 121)
+{
+    q: "121. Cuál de los siguientes elementos de la ciudadanía digital procura el Bienestar físico en un mundo tecnológico",
+    a: "b) Ergonomía",
+    o: ["a) Netiqueta", "b) Ergonomía", "c) Acceso", "d) Educación"]
+},
+// Pregunta 131 (Literal 122)
+{
+    q: "122. Las siguientes son recomendaciones de Netiqueta:",
+    a: "b, c, d",
+    o: ["a) Ergonomía", "b) Evitar redactar todo el texto en mayúscula", "c) Respetar el ritmo y tiempo de los demás", "d) Evitar etiquetar en publicaciones a quienes no lo han autorizado", "e) Utilizar alias que nos identifiquen de forma inapropiada", "f) Abrir MIC sin permiso para intervenir en una sesión virtual"]
+},
+// Pregunta 132 (Literal 123)
+{
+    q: "123. La brecha digital está relacionada directamente con el siguiente elemento de la ciudadanía digital:",
+    a: "b) Acceso",
+    o: ["a) Comercio", "b) Acceso", "c) Educación", "d) Netiqueta"]
+},
+// Pregunta 133 (Literal 124)
+{
+    q: "124. Es un derecho que garantiza el cifrado de las comunicaciones de los usuarios a través de internet:",
+    a: "c) Seguridad digital",
+    o: ["a) Educación", "b) Portabilidad", "c) Seguridad digital", "d) Acceso"]
+},
+// Pregunta 134 (Literal 125)
+{
+    q: "125. Consiste en la compra y venta de productos y/o servicios a través de medios digitales como el internet",
+    a: "b) E-Commerce",
+    o: ["a) Educación", "b) E-Commerce", "c) Acceso", "d) Derechos"]
+},
+// Pregunta 135 (Literal 126)
+{
+    q: "126. Selecciones los Derechos de la ciudadanía digital",
+    a: "a, b, c",
+    o: ["a) Intimidad en el ámbito laboral", "b) Neutralidad de Internet", "c) Seguridad digital", "d) No rectificación en Internet"]
+},
+// Pregunta 136 (Literal 127)
+{
+    q: "127. Son riesgos físicos a los que estamos expuestos los ciudadanos digitales:",
+    a: "a, b, c",
+    o: ["a) Dolores de la columna por una mala postura frente al PC", "b) Síndrome del túnel carpiano", "c) Accidentes de tránsito", "d) Dolores abdominales", "e) Ciberataques", "f) Estafas en medios de pago en línea"]
+},
+
+// --- Página 16 ---
+
+// Pregunta 137 (Literal 128)
+{
+    q: "128. ¿Cuáles son los elementos de la Identidad digital?",
+    a: "a, b, e, f",
+    o: ["a) Nick", "b) Los servicios que utilizas:", "c) Educación", "d) Acceso", "e) Avatar", "f) Los contactos que tienes"]
+},
+// Pregunta 138 (Literal 129)
+{
+    q: "129. Es el conjunto de información de un individuo o una organización, que se encuentra expuesta en internet.",
+    a: "c) Identidad Digital",
+    o: ["a) Derechos de la ciudadanía digital", "b) Ciudadanía digital", "c) Identidad Digital"]
+},
+// Pregunta 139 (Literal 130)
+{
+    q: "130. ¿Qué es la informática forense?",
+    a: "b) Rama de las ciencias forenses que analiza datos de sistemas informáticos",
+    o: ["a) Estudio de crímenes utilizando tecnología avanzada", "b) Rama de las ciencias forenses que analiza datos de sistemas informáticos", "c) Aplicación de métodos científicos para solucionar crímenes", "d) Uso de la informática para cometer delitos"]
+},
+// Pregunta 140 (Literal 131)
+{
+    q: "131. ¿Cuál es el objetivo principal de la informática forense?",
+    a: "c) Proporcionar información en un tribunal para esclarecer hechos",
+    o: ["a) Cometer delitos informáticos", "b) Diseñar sistemas informáticos seguros", "c) Proporcionar información en un tribunal para esclarecer hechos", "d) Enseñar informática avanzada"]
+},
+// Pregunta 141 (Literal 132)
+{
+    q: "132. ¿Qué caracteriza a la evidencia digital?",
+    a: "b) Es volátil y puede ser duplicada exactamente",
+    o: ["a) No puede ser alterada", "b) Es volátil y puede ser duplicada exactamente", "c) Siempre es visible y accesible", "d) No es relevante en los tribunales modernos"]
+},
+// Pregunta 142 (Literal 133)
+{
+    q: "133. ¿Cuáles son algunos ejemplos de delitos informáticos?",
+    a: "a) Phishing, malware y DDoS",
+    o: ["a) Phishing, malware y DDoS", "b) Robo físico y asalto", "c) Fraude electoral y soborno", "d) Vandalismo y grafiti"]
+},
+// Pregunta 143 (Literal 134)
+{
+    q: "134. ¿Qué es un perito informático?",
+    a: "c) Un profesional que asiste en tribunales sobre temas de tecnología",
+    o: ["a) Un abogado especializado en derecho informático", "b) Un delincuente informático", "c) Un profesional que asiste en tribunales sobre temas de tecnología", "d) Un programador de software"]
+},
+// Pregunta 144 (Literal 135)
+{
+    q: "135. ¿Qué funciones realiza un perito informático?",
+    a: "B) Asesoría técnica y localización de evidencias electrónicas",
+    o: ["A) Reparación y mantenimiento de computadoras", "B) Asesoría técnica y localización de evidencias electrónicas", "C) Enseñanza en universidades", "D) Gestión de redes sociales"]
+},
+
+// --- Página 17 ---
+
+// Pregunta 145 (Literal 136)
+{
+    q: "136. ¿Qué deben tener los peritos informáticos para ser considerados expertos?",
+    a: "C) Conocimientos especializados y reconocidos en su área",
+    o: ["A) Experiencia en marketing digital", "B) Títulos en áreas no relacionadas", "C) Conocimientos especializados y reconocidos en su área", "D) Experiencia como agentes de policía"]
+},
+// Pregunta 146 (Literal 137)
+{
+    q: "137. ¿Cómo se mantiene la cadena de custodia en la evidencia digital?",
+    a: "B) Documentando cada persona que accede a la evidencia",
+    o: ["A) No requiere registro alguno", "B) Documentando cada persona que accede a la evidencia", "C) Ignorando los protocolos establecidos", "D) Permitiendo acceso libre a la evidencia"]
+},
+// Pregunta 147 (Literal 138)
+{
+    q: "138. ¿Qué tipo de archivos puede analizar un perito informático?",
+    a: "B) Documentos, imágenes, audio, video, y más",
+    o: ["A) Solo documentos de texto", "B) Documentos, imágenes, audio, video, y más", "C) Únicamente archivos de audio", "D) Solo archivos físicos, no digitales"]
+},
+// Pregunta 148 (Literal 139)
+{
+    q: "139. ¿Qué no es un delito informático?",
+    a: "C) Escribir reseñas honestas en línea",
+    o: ["A) Phishing", "B) Hacking", "C) Escribir reseñas honestas en línea", "D) Difusión de malware"]
+},
+// Pregunta 149 (Literal 140)
+{
+    q: "140. En este tipo de red todos los ordenadores tienen el mismo estatus en jerarquía y deciden qué recursos y servicios dan al resto de participantes.",
+    a: "c) Punto a Punto",
+    o: ["a) LAN", "b) WAN", "c) Punto a Punto", "d) Cliente – Servidor"]
+},
+// Pregunta 150 (Literal 141)
+{
+    q: "141. Es una red local que permite compartir datos dentro de la misma organización, se puede considerar como una Internet privada.",
+    a: "b) Intranet",
+    o: ["a) Internet", "b) Intranet", "c) MAN"]
+},
+// Pregunta 151 (Literal 142)
+{
+    q: "142. Tipo de red según la topología donde es fácil de detectar cuándo una PC cae, pero si una de esta falla, toda la red se paraliza.",
+    a: "c) Anillo",
+    o: ["a) Estrella", "b) Bus", "c) Anillo"]
+},
+// Pregunta 152 (Literal 143)
+{
+    q: "143. Es un conjunto de equipos informáticos interconectados entre sí.",
+    a: "b) Red",
+    o: ["a) Inalámbrico", "b) Red", "c) Servidor de aplicaciones"]
+},
+// Pregunta 153 (Literal 144)
+{
+    q: "144. Conectan ordenadores de una casa u oficina. Su extensión está limitada físicamente a un edificio o a un entorno de hasta 200 metros",
+    a: "b) LAN",
+    o: ["a) WAN", "b) LAN", "c) MAN"]
+},
+// Pregunta 154 (Literal 145)
+{
+    q: "145. Tipo de Red que utiliza cables para transmitir los datos",
+    a: "a) Alámbrico",
+    o: ["a) Alámbrico", "b) Inalámbrico"]
+},
+// Pregunta 155 (Literal 146)
+{
+    q: "146. Tipo de red que utiliza ondas electromagnéticas para enviar y recibir los datos.",
+    a: "b) Inalámbrica",
+    o: ["a) Alámbrica", "b) Inalámbrica"]
+},
+
+// --- Página 18 ---
+
+// Pregunta 156 (Literal 147)
+{
+    q: "147. Capa del modelo OSI en la que los datos se convierten en una secuencia de bits, que es una cadena de 1 y 0.",
+    a: "a) Física",
+    o: ["a) Física", "b) Enlace de Datos", "c) Red", "d) Transporte"]
+},
+// Pregunta 157 (Literal 148)
+{
+    q: "148. Tipo de dirección que sirve para identificar a los dispositivos y no cambian nunca durante la vida del equipo, se configuran de fábrica.",
+    a: "a) Dirección MAC",
+    o: ["a) Dirección MAC", "b) Dirección IP"]
+},
+// Pregunta 158 (Literal 149)
+{
+    q: "149. Tipo de cable utilizado para transportar señales de RF (especialmente señales de TV).",
+    a: "c) Coaxial",
+    o: ["a) Fibra óptica", "b) Cable de Red", "c) Coaxial"]
+},
+// Pregunta 160 (Literal 150)
+{
+    q: "150. Es el sistema de archivos predeterminado de Windows:",
+    a: "b) NTFS",
+    o: ["a) FAT32", "b) NTFS", "c) XFS"]
+},
+// Pregunta 161 (Literal 151)
+{
+    q: "151. Es el sistema de archivo que utilizan en tarjetas de memoria y dispositivos USB:",
+    a: "b) FAT32",
+    o: ["a) NTFS", "b) FAT32", "c) APFS"]
+},
+// Pregunta 162 (Literal 152)
+{
+    q: "152. Es el sistema de archivos predeterminado utilizado por la mayoría de las distribuciones de Linux",
+    a: "d) Ext4",
+    o: ["a) NTFS", "b) FAT32", "c) APFS", "d) Ext4"]
+},
+// Pregunta 163 (Literal 153)
+{
+    q: "153. Los sistemas operativos según el usuario pueden ser:",
+    a: "d) Todos los anteriores",
+    o: ["a) Multiusuario", "b) Monousuario Monotarea", "c) Multitarea", "d) Todos los anteriores"]
+},
+// Pregunta 164 (Literal 154)
+{
+    q: "154. Es un tipo de arquitectura de sistema operativo de escritorio para procesamiento de 64 bits",
+    a: "a) x86-64",
+    o: ["a) x86-64", "b) ARM", "c) x86"]
+},
+// Pregunta 165 (Literal 155)
+{
+    q: "155. Es un archivo único que contiene todos los datos, incluyendo el sistema de archivos y la estructura de directorios:",
+    a: "b) Imagen ISO",
+    o: ["a) Ejecutable", "b) Imagen ISO", "c) NTFS"]
+},
+// Pregunta 166 (Literal 156)
+{
+    q: "156. Es un dispositivo de almacenamiento USB que ha sido configurado para iniciar un sistema operativo en un equipo:",
+    a: "b) USB de arranque",
+    o: ["a) Imagen ISO", "b) USB de arranque"]
+},
+
+// --- Página 19 ---
+
+// Pregunta 167 (Literal 157)
+{
+    q: "157. Es el identificador de proceso que se refiere a un proceso en concreto de los varios que se estén ejecutando.",
+    a: "b) PID",
+    o: ["a) Estado", "b) PID", "c) Memoria virtual"]
+},
+// Pregunta 168 (Literal 158)
+{
+    q: "158. Es un punto de ejecución de un proceso.",
+    a: "a) Hebra",
+    o: ["a) Hebra", "b) Estado", "c) Preparado, en espera o activo"]
+},
+// Pregunta 169 (Literal 159)
+{
+    q: "159. Estados posibles de un proceso:",
+    a: "a, b, d",
+    o: ["a) En ejecución", "b) Bloqueado", "c) Administrador de memoria", "d) Preparado, en espera o activo"]
+},
+// Pregunta 170 (Literal 160)
+{
+    q: "160. Es una interfaz que permite a diferentes aplicaciones o sistemas interactuar y comunicarse entre sí, además permite la interacción con el hardware.",
+    a: "b) API",
+    o: ["a) API GET", "b) API", "c) API POST", "d) Aplicación nativa"]
+},
+// Pregunta 171 (Literal 161)
+{
+    q: "161. Una aplicación debe poseer las siguientes características:",
+    a: "a, c, d",
+    o: ["a) Fáciles de entender", "b) Complejas", "c) Fáciles de manejar", "d) Asegurar los datos ingresados por el usuario", "e) Sin comunicación con otras aplicaciones"]
+},
+// Pregunta 172 (Literal 162)
+{
+    q: "162. Aplicaciones que se desarrollan específicamente para cada sistema operativo, iOS, Android o Windows:",
+    a: "b) Nativas",
+    o: ["a) Híbridas", "b) Nativas", "c) Web"]
+},
+// Pregunta 173 (Literal 163)
+{
+    q: "163. Tipo de aplicación que se desarrolla con lenguajes de programación específicos para web, como JSON o HTML",
+    a: "c) Web",
+    o: ["a) Nativas", "b) Híbridas", "c) Web"]
+},
+// Pregunta 174 (Literal 164)
+{
+    q: "164. Tipo de aplicación que necesita de espacio en el dispositivo para poder * 10 puntos ser instalada",
+    a: "c) Nativa",
+    o: ["a) Marca solo un óvalo.", "b) Web", "c) Nativa", "d) Híbrida"]
+},
+// Pregunta 175 (Literal 165)
+{
+    q: "165. Una API de bajo nivel permite:",
+    a: "a, d, e",
+    o: ["a) Acceder al hardware del dispositivo", "b) Navegar por Internet", "c) Gestionar contactos", "d) Leer archivos en el HDD (disco)", "e) Escribir archivos en el HDD (disco)"]
+},
+
+// --- Página 20 ---
+
+// Pregunta 176 (Literal 166)
+{
+    q: "166. Una API de alto nivel permite:",
+    a: "a, b, c",
+    o: ["a) Procesar audio del micrófono", "b) Navegar por Internet", "c) Gestionar contactos", "d) Realizar llamadas telefónicas Gestionar el hardware", "e) Escribir archivos el el HDD (disco)"]
+},
+// Pregunta 177 (Literal 167)
+{
+    q: "167. Los métodos HTTP de API son:",
+    a: "a, b, e",
+    o: ["a) GET", "b) POST", "c) REST", "d) Nativa", "e) DELETE"]
+},
+// Pregunta 178 (Literal 168)
+{
+    q: "168. Tipo de API que se utiliza para enviar, crear y modificar información en el servidor:",
+    a: "b) POST",
+    o: ["a) GET", "b) POST", "c) PUT", "d) DELETE"]
+},
+// Pregunta 179 (Literal 169)
+{
+    q: "169. Tipo de API que se utiliza para actualizar información con nuevos datos:",
+    a: "a) PUT",
+    o: ["a) PUT", "b) POST", "c) DELETE", "d) GET"]
+},
+// Pregunta 180 (Literal 170)
+{
+    q: "170. ¿Qué es la seguridad de software?",
+    a: "b) La práctica de proteger software contra amenazas, vulnerabilidades y ataques",
+    o: ["a) La práctica de optimizar el rendimiento del software", "b) La práctica de proteger software contra amenazas, vulnerabilidades y ataques", "c) Un método para mejorar la usabilidad del software", "d) La implementación de actualizaciones de diseño en software"]
+},
+// Pregunta 181 (Literal 171)
+{
+    q: "171. ¿Cuál de los siguientes es un principio fundamental de la seguridad de software?",
+    a: "c) Confidencialidad, Integridad y Disponibilidad (CIA)",
+    o: ["a) Velocidad, compatibilidad y escalabilidad", "b) Integridad, disponibilidad y diseño estructurado", "c) Confidencialidad, Integridad y Disponibilidad (CIA)", "d) Rendimiento, almacenamiento y eficiencia"]
+},
+// Pregunta 182 (Literal 172)
+{
+    q: "172. ¿Qué es una vulnerabilidad en seguridad de software?",
+    a: "b) Una debilidad en el software que puede ser explotada por atacantes",
+    o: ["a) Una característica del software que permite conexiones seguras", "b) Una debilidad en el software que puede ser explotada por atacantes", "c) Un tipo de firewall que protege los sistemas", "d) Un software que mejora la seguridad del sistema"]
+},
+// Pregunta 183 (Literal 173)
+{
+    q: "173. ¿Cuál es el objetivo principal de una prueba de penetración en software?",
+    a: "b) Identificar y evaluar vulnerabilidades en un sistema antes de que sean explotadas",
+    o: ["a) Hacer que el software sea más rápido", "b) Identificar y evaluar vulnerabilidades en un sistema antes de que sean explotadas", "c) Agregar más funcionalidades al software", "d) Reducir el costo del desarrollo del software"]
+},
+
+
+    // Kevin: Sigue pegando aquí hacia abajo tus 226 preguntas...
+    // No olvides la coma al final de cada bloque } , excepto en el último.
+];// --- Página 21 ---
+
+// Pregunta 184 (Literal 174)
+{
+    q: "174. ¿Qué tipo de ataque ocurre cuando un usuario malintencionado inyecta código malicioso en una aplicación web?",
+    a: "c) Inyección SQL (SQL Injection)",
+    o: ["a) Cross-Site Scripting (XSS)", "b) Phishing", "c) Inyección SQL (SQL Injection)", "d) Ataque DDoS"]
+},
+// Pregunta 185 (Literal 175)
+{
+    q: "175. ¿Cuál es una práctica recomendada para asegurar el software contra ataques de inyección de código?",
+    a: "b) Validar y sanear las entradas de usuario",
+    o: ["a) No permitir que los usuarios ingresen datos en la aplicación", "b) Validar y sanear las entradas de usuario", "c) Utilizar únicamente contraseñas fuertes", "d) Aumentar la velocidad de respuesta del servidor"]
+},
+// Pregunta 186 (Literal 176)
+{
+    q: "176. ¿Qué es la autenticación multifactor (MFA)?",
+    a: "a) Un método de autenticación que requiere al menos dos factores (ejemplo: contraseña y código SMS)",
+    o: ["a) Un método de autenticación que requiere al menos dos factores (ejemplo: contraseña y código SMS)", "b) Un protocolo de encriptación avanzada", "c) Un sistema de firewall que protege el software", "d) Un modelo de gestión de datos en la nube"]
+},
+// Pregunta 187 (Literal 177)
+{
+    q: "177. ¿Cuál de las siguientes técnicas ayuda a minimizar el impacto de una vulnerabilidad en el software?",
+    a: "c) Aplicar el principio de menor privilegio",
+    o: ["a) Otorgar privilegios elevados a todos los usuarios", "b) Usar solo contraseñas cortas y fáciles de recordar", "c) Aplicar el principio de menor privilegio", "d) Evitar el uso de sistemas de cifrado"]
+},
+// Pregunta 188 (Literal 178)
+{
+    q: "178. ¿Qué protocolo de seguridad se usa comúnmente para cifrar la comunicación entre un cliente y un servidor web?",
+    a: "b) TLS (Transport Layer Security)",
+    o: ["a) HTTP", "b) TLS (Transport Layer Security)", "c) FTP", "d) UDP"]
+},
+// Pregunta 189 (Literal 179)
+{
+    q: "179. ¿Qué es el hardening en seguridad de software?",
+    a: "c) El proceso de reducir la superficie de ataque mediante la configuración segura del sistema",
+    o: ["a) El proceso de mejorar la interfaz de usuario de una aplicación", "b) Un tipo de ataque informático", "c) El proceso de reducir la superficie de ataque mediante la configuración segura del sistema", "d) Un método para aumentar la velocidad de ejecución del software"]
+},
+// Pregunta 190 (Literal 180)
+{
+    q: "180. ¿Qué es la legislación informática?",
+    a: "a) Un conjunto de normas que regulan el uso de la tecnología y la información",
+    o: ["a) Un conjunto de normas que regulan el uso de la tecnología y la información", "b)Un manual de uso de software y hardware", "c) Un reglamento interno de las empresas tecnológicas", "d) Un conjunto de prácticas recomendadas para la programación"]
+},
+// Pregunta 191 (Literal 181)
+{
+    q: "181. ¿Cuál de las siguientes leyes protege la privacidad y los datos personales en la Unión Europea?",
+    a: "b) GDPR (Reglamento General de Protección de Datos)",
+    o: ["a) Ley de Protección de Software", "b) GDPR (Reglamento General de Protección de Datos)", "c) DMCA (Digital Millennium Copyright Act)", "d) Ley de Propiedad Intelectual"]
+},
+
+// --- Página 22 ---
+
+// Pregunta 192 (Literal 182)
+{
+    q: "182. ¿Qué protege la Ley de Propiedad Intelectual en el ámbito informático?",
+    a: "c) Los derechos de autor sobre software, bases de datos y contenido digital",
+    o: ["a) El derecho de los usuarios a modificar software libremente", "b) La creación y uso de software sin restricciones", "c) Los derechos de autor sobre software, bases de datos y contenido digital", "e) La infraestructura física de los centros de datos"]
+},
+// Pregunta 193 (Literal 183)
+{
+    q: "183. ¿Cuál de los siguientes NO es un delito informático?",
+    a: "c) Publicar una reseña honesta en un sitio web",
+    o: ["a) Phishing", "b) Inyección SQL", "c) Publicar una reseña honesta en un sitio web", "d) Acceso no autorizado a un sistema informático"]
+},
+// Pregunta 194 (Literal 184)
+{
+    q: "184. ¿Qué institución se encarga de regular la protección de datos personales en Ecuador?",
+    a: "b) LOPDP",
+    o: ["a) FBI", "b) LOPDP", "c) Interpol", "d) NSA"]
+},
+// Pregunta 195 (Literal 185)
+{
+    q: "185. Qué establece la Ley DMCA (Digital Millennium Copyright Act) en EE.UU.?",
+    a: "b) Regula el acceso a contenido digital y penaliza la piratería",
+    o: ["a) Protege la privacidad en redes sociales", "b) Regula el acceso a contenido digital y penaliza la piratería", "c) Permite el uso libre de software de código cerrado", "d) Obliga a las empresas a compartir datos de usuarios con el gobierno"]
+},
+// Pregunta 196 (Literal 186)
+{
+    q: "186. ¿Cuál de las siguientes acciones es ilegal según la mayoría de las legislaciones de ciberseguridad?",
+    a: "c) Acceder a información sin autorización en un sistema ajeno",
+    o: ["a) Realizar pruebas de seguridad en un sistema propio", "b) Compartir software de código abierto", "c) Acceder a información sin autorización en un sistema ajeno", "d) Usar una VPN para navegar en internet"]
+},
+// Pregunta 197 (Literal 187)
+{
+    q: "187. ¿Qué regula la Ley de Comercio Electrónico en muchos países?",
+    a: "b) Las transacciones, contratos y seguridad en las compras en línea",
+    o: ["a) La forma en que se protegen los derechos de autor en software", "b) Las transacciones, contratos y seguridad en las compras en línea", "c) El acceso a redes sociales y plataformas digitales", "d) La protección contra virus y malware en sistemas informáticos"]
+},
+// Pregunta 198 (Literal 188)
+{
+    q: "188. ¿Qué tipo de delito informático castiga la suplantación de identidad en internet para engañar a otras personas?",
+    a: "a) Phishing",
+    o: ["a) Phishing", "b) DDoS", "c) Spyware", "d) Malware"]
+},
+// Pregunta 199 (Literal 189)
+{
+    q: "189. ¿Qué responsabilidad tienen las empresas con la información de sus usuarios según la mayoría de las leyes de protección de datos?",
+    a: "b) Asegurar la protección, integridad y confidencialidad de los datos",
+    o: ["a) Vender la información a terceros para generar ingresos", "b) Asegurar la protección, integridad y confidencialidad de los datos", "c) Eliminar los datos de los usuarios después de 5 años", "d) No permitir a los usuarios acceder a sus propios datos"]
+},
+
+// --- Página 23 ---
+
+// Pregunta 200 (Literal 190)
+{
+    q: "190. ¿Qué es el hacking ético?",
+    a: "b) La práctica de evaluar la seguridad de un sistema con permiso del propietario",
+    o: ["a) Un método para cometer ciberataques sin ser detectado", "b) La práctica de evaluar la seguridad de un sistema con permiso del propietario", "c) La manipulación de datos en redes sociales", "d) El desarrollo de software para ataques informático"]
+},
+// Pregunta 201 (Literal 191)
+{
+    q: "191. ¿Cuál de las siguientes certificaciones es reconocida para hackers éticos?",
+    a: "b) CEH (Certified Ethical Hacker)",
+    o: ["a) CCNA", "b) CEH (Certified Ethical Hacker)", "c) PMP", "d) ITIL"]
+},
+// Pregunta 202 (Literal 192)
+{
+    q: "192. ¿Cuál es el primer paso en una auditoría de seguridad informática?",
+    a: "b) Recolección de información y reconocimiento",
+    o: ["a) Explotación de vulnerabilidades", "b) Recolección de información y reconocimiento", "c) Eliminación de logs del sistema", "d) Instalación de malware para pruebas"]
+},
+// Pregunta 203 (Literal 193)
+{
+    q: "193. ¿Qué herramienta se usa comúnmente para el escaneo de puertos en hacking ético?",
+    a: "a) Nmap",
+    o: ["a) Nmap", "b) Wireshark", "c) Metasploit", "d) Hashcat"]
+},
+// Pregunta 204 (Literal 194)
+{
+    q: "194. ¿Qué técnica de hacking ético consiste en engañar a los usuarios para obtener información confidencial?",
+    a: "b) Phishing",
+    o: ["a) Sniffing", "b) Phishing", "c) SQL Injection", "d) Port Scanning"]
+},
+// Pregunta 205 (Literal 195)
+{
+    q: "195. ¿Cuál de los siguientes es un sistema operativo diseñado para pruebas de penetración?",
+    a: "c) Kali Linux",
+    o: ["a) Ubuntu", "b) Windows Server", "c) Kali Linux", "d) macOS"]
+},
+// Pregunta 206 (Literal 196)
+{
+    q: "196. ¿Qué es un exploit en hacking ético?",
+    a: "b) Un código o herramienta usada para aprovechar una vulnerabilidad",
+    o: ["a) Un tipo de ataque de denegación de servicio", "b) Un código o herramienta usada para aprovechar una vulnerabilidad", "c) Un antivirus para detectar intrusiones", "d) Un firewall de seguridad"]
+},
+// Pregunta 207 (Literal 197)
+{
+    q: "197. ¿Qué herramienta se usa para analizar el tráfico de red en tiempo real?",
+    a: "b) Wireshark",
+    o: ["a) Metasploit", "b) Wireshark", "c) Nmap", "d) Burp Suite"]
+},
+
+// --- Página 24 ---
+
+// Pregunta 208 (Literal 198)
+{
+    q: "198. ¿Qué tipo de prueba de penetración se realiza sin conocer información interna del sistema?",
+    a: "b) Prueba de caja negra",
+    o: ["a) Prueba de caja blanca", "b) Prueba de caja negra", "c) Prueba de caja gris", "d) Prueba de fuzzing"]
+},
+// Pregunta 209 (Literal 199)
+{
+    q: "199. ¿Qué es OSINT en el contexto del hacking ético?",
+    a: "b) Inteligencia de fuentes abiertas utilizada para recopilar información",
+    o: ["a) Un método para cifrar archivos", "b) Inteligencia de fuentes abiertas utilizada para recopilar información", "c) Un tipo de ataque DoS", "d) Una técnica de inyección de código"]
+},
+
+// --- Pregunta 200 desglosada (Items a - j) ---
+
+{
+    q: "200.a) Los objetivos de la organización forman los criterios sobre los cuáles se medirá el desempeño del trabajo.",
+    a: "V",
+    o: ["V", "F"]
+},
+{
+    q: "200.b) Las estrategias deben definirse para todos los niveles de la organización.",
+    a: "V",
+    o: ["V", "F"]
+},
+{
+    q: "200.c) Las estrategias competitivas no nos definen cómo competirá la empresa en su área de negocio.",
+    a: "F",
+    o: ["V", "F"]
+},
+{
+    q: "200.d) El análisis FODA resume las fortalezas, oportunidades, debilidades y amenazas, encontradas en el ambiente externo e interno de una empresa.",
+    a: "V",
+    o: ["V", "F"]
+},
+{
+    q: "200.e) La Cadena de Valor es una herramienta que no ayuda a determinar las actividades que se realizan dentro de la empresa y agregan valor al producto o servicio.",
+    a: "V",
+    o: ["V", "F"]
+},
+{
+    q: "200.f) El alcance de control comprende el número de empleados que un Gerente puede supervisar de manera eficaz y eficiente.",
+    a: "V",
+    o: ["V", "F"]
+},
+{
+    q: "200.g) Las organizaciones altamente formalizadas tienen descripciones explicitas de cada uno de los puestos de trabajo.",
+    a: "V",
+    o: ["V", "F"]
+},
+{
+    q: "200.h) La estructura organizacional es el armazón o el esqueleto de una organización.",
+    a: "V",
+    o: ["V", "F"]
+},
+{
+    q: "200.i) Cuando los gerentes desarrollan o cambian la estructura de la organización llevan a cabo el diseño organizacional.",
+    a: "V",
+    o: ["V", "F"]
+},
+{
+    q: "200.j) EL organigrama es una representación gráfica de la organización que incluye las normas de funcionamiento, métodos de trabajo, descripciones de puestos.",
+    a: "F",
+    o: ["V", "F"]
+},
+
+/* =========================================================
+   FIN DEL BANCO DE PREGUNTAS
+   ========================================================= */
+
+// Actualizar texto del botón con el total de preguntas cargadas
+document.getElementById('btn-total').innerText = `BANCO COMPLETO (${BANK.length})`;
+
+let pool = []; let cIdx = 0; let score = 0; let fails = []; let flashAns = false;
+
+function shuffle(a) { 
+    for (let i = a.length - 1; i > 0; i--) { 
+        const j = Math.floor(Math.random() * (i + 1)); 
+        [a[i], a[j]] = [a[j], a[i]]; 
+    } 
+    return a; 
 }
 
 function initQuiz(limit) {
-    let fullList = shuffleArray([...BANK]);
-    currentQuestions = fullList.slice(0, Math.min(limit, fullList.length));
-    
-    currentIdx = 0;
-    score = 0;
-    fails = [];
-    
-    document.getElementById('menu-section').style.display = 'none';
-    document.getElementById('quiz-section').style.display = 'block';
-    document.getElementById('q-total').innerText = currentQuestions.length;
-    
-    updateQuiz();
+    if(BANK.length === 0) { alert("¡Aún no has agregado las preguntas en el código!"); return; }
+    pool = shuffle([...BANK]).slice(0, limit);
+    cIdx = 0; score = 0; fails = [];
+    document.getElementById('menu-sec').style.display = 'none';
+    document.getElementById('quiz-sec').style.display = 'block';
+    document.getElementById('q-total').innerText = pool.length;
+    renderQ();
 }
 
-function updateQuiz() {
-    const qData = currentQuestions[currentIdx];
-    document.getElementById('q-idx').innerText = currentIdx + 1;
+function renderQ() {
+    const qData = pool[cIdx];
+    document.getElementById('q-idx').innerText = cIdx + 1;
     document.getElementById('q-score').innerText = score;
     document.getElementById('q-display').innerText = qData.q;
+    const box = document.getElementById('opts-display'); 
+    box.innerHTML = '';
     
-    const optionsDiv = document.getElementById('options-display');
-    optionsDiv.innerHTML = '';
-    
-    let shuffOptions = shuffleArray([...qData.o]);
-    shuffOptions.forEach(opt => {
-        const b = document.createElement('button');
-        b.className = 'option';
+    shuffle([...qData.o]).forEach(opt => {
+        const b = document.createElement('button'); 
+        b.className = 'option'; 
         b.innerText = opt;
-        b.onclick = () => selectOption(b, opt, qData.a);
-        optionsDiv.appendChild(b);
+        b.onclick = () => {
+            const btns = document.querySelectorAll('.option'); 
+            btns.forEach(x => x.classList.add('disabled'));
+            
+            if (opt === qData.a) {
+                b.classList.add('correct'); 
+                score++; 
+                soundOk.play();
+            } else {
+                b.classList.add('wrong'); 
+                soundNo.play();
+                fails.push({q: qData.q, a: qData.a});
+                btns.forEach(x => { if(x.innerText === qData.a) x.classList.add('correct'); });
+            }
+            
+            setTimeout(() => { 
+                cIdx++; 
+                if (cIdx < pool.length) renderQ(); 
+                else showEnd(); 
+            }, 1500);
+        };
+        box.appendChild(b);
     });
 }
 
-function selectOption(btn, choice, correct) {
-    const allBtns = document.querySelectorAll('.option');
-    allBtns.forEach(b => b.classList.add('disabled'));
-
-    if (choice === correct) {
-        btn.classList.add('correct');
-        score++;
-        document.getElementById('q-score').innerText = score;
-    } else {
-        btn.classList.add('wrong');
-        fails.push({ q: currentQuestions[currentIdx].q, a: correct });
-        allBtns.forEach(b => { if(b.innerText === correct) b.classList.add('correct'); });
-    }
-
-    setTimeout(() => {
-        currentIdx++;
-        if (currentIdx < currentQuestions.length) {
-            updateQuiz();
-        } else {
-            showResults();
-        }
-    }, 1200);
-}
-
-function showResults() {
-    document.getElementById('quiz-section').style.display = 'none';
-    document.getElementById('result-section').style.display = 'block';
-    document.getElementById('final-stats').innerText = `${score} / ${currentQuestions.length}`;
+function showEnd() {
+    document.getElementById('quiz-sec').style.display = 'none';
+    document.getElementById('res-sec').style.display = 'block';
+    document.getElementById('final-stats').innerText = `${score} / ${pool.length}`;
+    const area = document.getElementById('review-area'); 
+    area.innerHTML = '<h2 style="text-align:left;">Preguntas para repasar (errores):</h2>';
     
-    const rev = document.getElementById('review-area');
-    rev.innerHTML = '<h3>Preguntas en las que te equivocaste:</h3>';
-    
-    if (fails.length === 0) {
-        rev.innerHTML += '<p style="color:var(--success); font-weight:bold;">¡Felicidades Kevin! Tienes dominio total del banco de preguntas.</p>';
+    if(fails.length === 0) {
+        area.innerHTML += '<p style="color:var(--green); font-size:1.5rem;">¡Perfecto Kevin! Tienes dominio total.</p>';
     } else {
-        fails.forEach(f => {
-            rev.innerHTML += `
+        fails.forEach(f => { 
+            area.innerHTML += `
                 <div class="review-card">
-                    <div style="color:var(--accent-color); font-weight:bold; margin-bottom:5px;">P: ${f.q}</div>
-                    <div style="color:var(--success); font-weight:700;">R. CORRECTA: ${f.a}</div>
-                </div>
-            `;
+                    <div style="color:var(--blue); font-weight:bold; margin-bottom:5px;">P: ${f.q}</div>
+                    <div style="color:var(--green); font-weight:bold;">R. CORRECTA: ${f.a}</div>
+                </div>`; 
         });
     }
 }
 
-// TARJETAS
-function initFlashcards() {
-    document.getElementById('menu-section').style.display = 'none';
-    document.getElementById('flashcard-section').style.display = 'block';
-    renderFlash();
+function initFlash() {
+    if(BANK.length === 0) { alert("¡Agrega las preguntas primero!"); return; }
+    document.getElementById('menu-sec').style.display = 'none';
+    document.getElementById('flash-sec').style.display = 'block';
+    nextFlash();
 }
 
-function renderFlash() {
-    document.getElementById('flash-feedback').innerText = '';
+function nextFlash() {
     const q = BANK[Math.floor(Math.random() * BANK.length)];
-    const pairCorrect = Math.random() > 0.5;
-    
-    let displayAns;
-    if (pairCorrect) {
-        displayAns = q.a;
-        flashCurrentCorrect = true;
-    } else {
-        const wr = q.o.filter(x => x !== q.a);
-        displayAns = wr.length > 0 ? wr[0] : "Dato incorrecto";
-        flashCurrentCorrect = false;
-    }
-
-    document.getElementById('flash-content').innerHTML = `
-        <div style="font-size:0.9rem; color:var(--accent-color); margin-bottom:10px;">PREGUNTA:</div>
+    const correct = Math.random() > 0.5;
+    let dispA = correct ? q.a : (q.o.filter(x => x !== q.a)[0] || "Respuesta incorrecta");
+    flashAns = correct;
+    document.getElementById('flash-card').innerHTML = `
+        <div style="font-size:0.9rem; color:var(--blue); margin-bottom:10px;">PREGUNTA:</div>
         <div>${q.q}</div>
-        <hr style="margin:20px 0; border:0; border-top:1px solid #303748;">
-        <div style="font-size:0.9rem; color:var(--accent-color); margin-bottom:10px;">RESPUESTA PROPUESTA:</div>
-        <div style="font-weight:bold">${displayAns}</div>
+        <hr style="margin:20px 0; border:0; border-top:1px solid var(--border);">
+        <div style="font-size:0.9rem; color:var(--blue); margin-bottom:10px;">RESPUESTA PROPUESTA:</div>
+        <div style="font-weight:bold">${dispA}</div>
     `;
 }
 
-function evalFlash(userVal) {
-    const feedback = document.getElementById('flash-feedback');
-    if (userVal === flashCurrentCorrect) {
-        feedback.innerText = "¡CORRECTO!";
-        feedback.style.color = "var(--success)";
-    } else {
-        feedback.innerText = "INCORRECTO";
-        feedback.style.color = "var(--error)";
-    }
-    setTimeout(renderFlash, 1200);
+function evalFlash(val) {
+    if(val === flashAns) soundOk.play(); else soundNo.play();
+    nextFlash();
 }
-
 </script>
 </body>
 </html>
